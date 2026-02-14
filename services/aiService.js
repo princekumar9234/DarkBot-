@@ -44,33 +44,38 @@ async function callOpenAI(messages) {
  * @returns {string} AI response content
  */
 async function callGemini(messages) {
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
-        throw new Error('Gemini API key is not configured. Please add your API key in settings.');
+    const key = process.env.GEMINI_API_KEY;
+    if (!key || key === 'your_gemini_api_key_here') {
+        throw new Error('Gemini API key is not configured.');
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    try {
+        const genAI = new GoogleGenerativeAI(key);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Build chat history for Gemini (convert from OpenAI format)
-    const history = [];
-    for (let i = 0; i < messages.length - 1; i++) {
-        const msg = messages[i];
-        history.push({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
+        const chat = model.startChat({
+            history: messages.slice(0, -1).map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            })),
+            generationConfig: {
+                maxOutputTokens: 2048,
+            },
         });
+
+        // Prepend system prompt to the actual message for now to be safe
+        const lastMsg = messages[messages.length - 1].content;
+        const prompt = messages.length === 1 
+            ? `${SYSTEM_PROMPT}\n\nUser: ${lastMsg}` 
+            : lastMsg;
+
+        const result = await chat.sendMessage(prompt);
+        const response = await result.response;
+        return response.text();
+    } catch (error) {
+        console.error('Gemini API Error details:', error);
+        throw error;
     }
-
-    // Get last message
-    const lastMessage = messages[messages.length - 1].content;
-
-    const chat = model.startChat({
-        history,
-        systemInstruction: SYSTEM_PROMPT,
-    });
-
-    const result = await chat.sendMessage(lastMessage);
-    return result.response.text();
 }
 
 module.exports = { callOpenAI, callGemini };

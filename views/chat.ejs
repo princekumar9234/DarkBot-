@@ -50,11 +50,27 @@
             </div>
 
             <div class="sidebar-footer">
-                <div class="sidebar-user" onclick="window.location.href='/settings'">
+                <div class="sidebar-user" id="userProfileBtn">
                     <div class="sidebar-user-avatar" id="userAvatar">
                         <%= user.name.charAt(0).toUpperCase() %>
                     </div>
-                    <span class="sidebar-user-name"><%= user.name %></span>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name"><%= user.name %></span>
+                        <span class="sidebar-user-email"><%= user.email %></span>
+                    </div>
+                    <i class="fas fa-ellipsis sidebar-user-menu-icon"></i>
+                </div>
+                
+                <!-- User Profile Dropdown -->
+                <div class="user-dropdown" id="userDropdown">
+                    <button class="user-dropdown-item" onclick="window.location.href='/settings'">
+                        <i class="fas fa-gear"></i>
+                        <span>Settings</span>
+                    </button>
+                    <button class="user-dropdown-item" id="logoutBtn">
+                        <i class="fas fa-arrow-right-from-bracket"></i>
+                        <span>Log out</span>
+                    </button>
                 </div>
             </div>
         </aside>
@@ -65,10 +81,7 @@
         <main class="main-content">
             <!-- Top Bar -->
             <div class="topbar">
-                <div class="topbar-left">
-                    <button class="sidebar-toggle" id="sidebarToggle" title="Open sidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
+                <div class="topbar-center">
                     <div class="topbar-title">
                         DarkBot
                         <span class="provider-badge" id="providerBadge">
@@ -178,17 +191,15 @@
     applySystemTheme();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
 
-    // ============================================
     // Sidebar Toggle
     // ============================================
-    document.getElementById('sidebarToggle').addEventListener('click', () => {
-        sidebar.classList.remove('collapsed');
-        sidebarBackdrop.classList.add('active');
-    });
-
     document.getElementById('sidebarCollapseBtn').addEventListener('click', () => {
-        sidebar.classList.add('collapsed');
-        sidebarBackdrop.classList.remove('active');
+        sidebar.classList.toggle('collapsed');
+        if (!sidebar.classList.contains('collapsed')) {
+            sidebarBackdrop.classList.add('active');
+        } else {
+            sidebarBackdrop.classList.remove('active');
+        }
     });
 
     sidebarBackdrop.addEventListener('click', () => {
@@ -196,10 +207,41 @@
         sidebarBackdrop.classList.remove('active');
     });
 
-    // Collapse sidebar on mobile by default
-    if (window.innerWidth <= 768) {
-        sidebar.classList.add('collapsed');
-    }
+    // Start with sidebar collapsed (icon bar only)
+    sidebar.classList.add('collapsed');
+
+    // ============================================
+    // User Profile Dropdown
+    // ============================================
+    const userProfileBtn = document.getElementById('userProfileBtn');
+    const userDropdown = document.getElementById('userDropdown');
+
+    userProfileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isActive = userDropdown.classList.toggle('active');
+        userProfileBtn.classList.toggle('dropdown-open', isActive);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!userDropdown.contains(e.target) && !userProfileBtn.contains(e.target)) {
+            userDropdown.classList.remove('active');
+            userProfileBtn.classList.remove('dropdown-open');
+        }
+    });
+
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        try {
+            const res = await fetch('/auth/logout', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = '/login';
+            }
+        } catch (err) {
+            console.error('Logout failed:', err);
+        }
+    });
 
     // ============================================
     // Textarea Auto-resize
@@ -238,7 +280,11 @@
         // Clear messages
         const messages = messagesContainer.querySelectorAll('.message, .typing-indicator');
         messages.forEach(m => m.remove());
+        
         welcomeScreen.style.display = 'flex';
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        chatInput.focus();
 
         // Deselect sidebar items
         document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
@@ -459,13 +505,102 @@
             chatItem.innerHTML = `
                 <i class="fas fa-message chat-item-icon"></i>
                 <span class="chat-item-title">${escapeHtml(chat.title)}</span>
-                <button class="chat-item-delete" onclick="event.stopPropagation(); deleteChat('${chat._id}')" title="Delete chat">
-                    <i class="fas fa-trash"></i>
+                <button class="chat-item-menu" data-chat-id="${chat._id}" title="More options">
+                    <i class="fas fa-ellipsis"></i>
                 </button>
             `;
-            chatItem.addEventListener('click', () => loadChat(chat._id));
+            
+            // Click to load chat
+            chatItem.addEventListener('click', (e) => {
+                if (!e.target.closest('.chat-item-menu')) {
+                    loadChat(chat._id);
+                }
+            });
+
+            // Right-click context menu
+            chatItem.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showChatContextMenu(e, chat._id);
+            });
+
+            // Three dots menu click
+            const menuBtn = chatItem.querySelector('.chat-item-menu');
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showChatContextMenu(e, chat._id);
+            });
+
             sidebarChats.appendChild(chatItem);
         });
+    }
+
+    // ============================================
+    // Chat Context Menu
+    // ============================================
+    let currentContextMenu = null;
+
+    function showChatContextMenu(event, chatId) {
+        // Remove existing menu
+        if (currentContextMenu) {
+            currentContextMenu.remove();
+        }
+
+        // Create context menu
+        const menu = document.createElement('div');
+        menu.className = 'chat-context-menu';
+        menu.innerHTML = `
+            <button class="context-menu-item" data-action="rename">
+                <i class="fas fa-pen"></i>
+                <span>Rename</span>
+            </button>
+            <button class="context-menu-item danger" data-action="delete">
+                <i class="fas fa-trash"></i>
+                <span>Delete</span>
+            </button>
+        `;
+
+        // Position menu
+        document.body.appendChild(menu);
+        
+        const x = event.clientX;
+        const y = event.clientY;
+        const menuRect = menu.getBoundingClientRect();
+        
+        // Adjust position if menu goes off screen
+        const left = (x + menuRect.width > window.innerWidth) ? x - menuRect.width : x;
+        const top = (y + menuRect.height > window.innerHeight) ? y - menuRect.height : y;
+        
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+        menu.classList.add('active');
+
+        currentContextMenu = menu;
+
+        // Handle menu actions
+        menu.querySelectorAll('.context-menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const action = item.getAttribute('data-action');
+                if (action === 'delete') {
+                    deleteChat(chatId);
+                } else if (action === 'rename') {
+                    // TODO: Implement rename functionality
+                    showToast('Rename feature coming soon!', 'info');
+                }
+                menu.remove();
+                currentContextMenu = null;
+            });
+        });
+
+        // Close menu on outside click
+        setTimeout(() => {
+            document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
+                    currentContextMenu = null;
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }, 0);
     }
 
     // ============================================
