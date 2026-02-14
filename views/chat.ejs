@@ -20,30 +20,36 @@
         <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
         <!-- ============================================ -->
-        <!-- Sidebar -->
+        <!-- Sidebar - ChatGPT Style -->
         <!-- ============================================ -->
         <aside class="sidebar" id="sidebar">
+            <!-- Sidebar Top Nav -->
             <div class="sidebar-header">
-                <button class="new-chat-btn" id="newChatBtn">
+                <button class="sidebar-nav-btn" id="sidebarCollapseBtn" title="Close sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="sidebar-nav-btn" id="newChatBtn" title="New chat">
+                    <i class="fas fa-pen-to-square"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-nav">
+                <button class="sidebar-nav-item" id="newChatNavBtn">
                     <i class="fas fa-plus"></i>
-                    <span>New Chat</span>
+                    <span>New chat</span>
+                </button>
+                <button class="sidebar-nav-item" onclick="window.location.href='/settings'">
+                    <i class="fas fa-gear"></i>
+                    <span>Settings</span>
                 </button>
             </div>
 
             <div class="sidebar-chats" id="sidebarChats">
-                <div class="sidebar-section-title">Recent Chats</div>
+                <div class="sidebar-section-title">Your chats</div>
                 <!-- Chat items will be dynamically loaded here -->
             </div>
 
             <div class="sidebar-footer">
-                <button class="sidebar-footer-btn" onclick="window.location.href='/settings'">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </button>
-                <button class="sidebar-footer-btn danger" id="clearAllBtn">
-                    <i class="fas fa-trash-alt"></i>
-                    <span>Clear all chats</span>
-                </button>
                 <div class="sidebar-user" onclick="window.location.href='/settings'">
                     <div class="sidebar-user-avatar" id="userAvatar">
                         <%= user.name.charAt(0).toUpperCase() %>
@@ -60,7 +66,7 @@
             <!-- Top Bar -->
             <div class="topbar">
                 <div class="topbar-left">
-                    <button class="sidebar-toggle" id="sidebarToggle">
+                    <button class="sidebar-toggle" id="sidebarToggle" title="Open sidebar">
                         <i class="fas fa-bars"></i>
                     </button>
                     <div class="topbar-title">
@@ -80,53 +86,34 @@
             <!-- Chat Messages Area -->
             <div class="chat-area" id="chatArea">
                 <div class="messages-container" id="messagesContainer">
-                    <!-- Welcome Screen (shown when no messages) -->
+                    <!-- Welcome Screen - ChatGPT Style -->
                     <div class="welcome-screen" id="welcomeScreen">
-                        <div class="welcome-icon">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <h2 class="welcome-title">How can I help you today?</h2>
-                        <p class="welcome-subtitle">
-                            I'm DarkBot, your AI assistant powered by cutting-edge language models. Ask me anything!
-                        </p>
-                        <div class="welcome-suggestions">
-                            <div class="suggestion-card" data-prompt="Explain quantum computing in simple terms">
-                                <div class="suggestion-card-title">🔬 Explain quantum computing</div>
-                                <div class="suggestion-card-desc">in simple terms</div>
-                            </div>
-                            <div class="suggestion-card" data-prompt="Write a Python script to sort a list of numbers">
-                                <div class="suggestion-card-title">💻 Write a Python script</div>
-                                <div class="suggestion-card-desc">to sort a list of numbers</div>
-                            </div>
-                            <div class="suggestion-card" data-prompt="Give me creative ideas for a birthday party">
-                                <div class="suggestion-card-title">🎉 Birthday party ideas</div>
-                                <div class="suggestion-card-desc">creative and fun suggestions</div>
-                            </div>
-                            <div class="suggestion-card" data-prompt="Help me write a professional email to my manager">
-                                <div class="suggestion-card-title">✉️ Write a professional email</div>
-                                <div class="suggestion-card-desc">to your manager</div>
-                            </div>
-                        </div>
+                        <h1 class="welcome-title-main">Where should we begin?</h1>
                     </div>
 
                     <!-- Messages will be appended here -->
                 </div>
             </div>
 
-            <!-- Input Area -->
+            <!-- Input Area - ChatGPT Style Pill -->
             <div class="input-area">
                 <div class="input-wrapper">
                     <div class="input-container" id="inputContainer">
+                        <button class="input-attach-btn" title="Attach" id="attachBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
                         <textarea
                             id="chatInput"
                             class="chat-input"
-                            placeholder="Message DarkBot..."
+                            placeholder="Ask anything"
                             rows="1"
                             autofocus
                         ></textarea>
-                        <button class="send-btn" id="sendBtn" disabled title="Send message">
-                            <i class="fas fa-arrow-up"></i>
-                        </button>
+                        <div class="input-actions">
+                            <button class="send-btn" id="sendBtn" disabled title="Send message">
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="input-footer">
                         DarkBot can make mistakes. Consider checking important information.
@@ -195,8 +182,13 @@
     // Sidebar Toggle
     // ============================================
     document.getElementById('sidebarToggle').addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        sidebarBackdrop.classList.toggle('active');
+        sidebar.classList.remove('collapsed');
+        sidebarBackdrop.classList.add('active');
+    });
+
+    document.getElementById('sidebarCollapseBtn').addEventListener('click', () => {
+        sidebar.classList.add('collapsed');
+        sidebarBackdrop.classList.remove('active');
     });
 
     sidebarBackdrop.addEventListener('click', () => {
@@ -238,6 +230,7 @@
     // New Chat
     // ============================================
     document.getElementById('newChatBtn').addEventListener('click', startNewChat);
+    document.getElementById('newChatNavBtn').addEventListener('click', startNewChat);
     document.getElementById('newChatTopBtn').addEventListener('click', startNewChat);
 
     function startNewChat() {
@@ -258,18 +251,6 @@
             sidebarBackdrop.classList.remove('active');
         }
     }
-
-    // ============================================
-    // Suggestion Cards
-    // ============================================
-    document.querySelectorAll('.suggestion-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const prompt = card.getAttribute('data-prompt');
-            chatInput.value = prompt;
-            chatInput.dispatchEvent(new Event('input'));
-            sendMessage();
-        });
-    });
 
     // ============================================
     // Send Message
@@ -460,7 +441,7 @@
 
     function renderChatHistory(chats) {
         // Keep the section title
-        sidebarChats.innerHTML = '<div class="sidebar-section-title">Recent Chats</div>';
+        sidebarChats.innerHTML = '<div class="sidebar-section-title">Your chats</div>';
 
         if (chats.length === 0) {
             sidebarChats.innerHTML += `
@@ -547,26 +528,6 @@
             }
         });
     }
-
-    // ============================================
-    // Clear All Chats
-    // ============================================
-    document.getElementById('clearAllBtn').addEventListener('click', () => {
-        showConfirm('Clear All Chats', 'This will permanently delete all your chats. Are you sure?', async () => {
-            try {
-                const res = await fetch('/chat/clear/all', { method: 'DELETE' });
-                const data = await res.json();
-
-                if (data.success) {
-                    startNewChat();
-                    loadChatHistory();
-                    showToast('All chats cleared', 'success');
-                }
-            } catch (err) {
-                showToast('Failed to clear chats', 'error');
-            }
-        });
-    });
 
     // ============================================
     // Confirm Modal
