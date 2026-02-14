@@ -1261,7 +1261,8 @@ input, textarea, select {
     border-radius: 26px;
     gap: 4px;
     transition: all var(--transition-fast);
-    min-height: 48px;
+    position: relative; /* Anchor for absolute positioned menus */
+    overflow: visible !important;
 }
 
 .input-container:focus-within {
@@ -1283,6 +1284,7 @@ input, textarea, select {
     transition: all var(--transition-fast);
     flex-shrink: 0;
     margin-bottom: 2px;
+    z-index: 10;
 }
 
 .input-extra-btn:hover {
@@ -1304,8 +1306,8 @@ input, textarea, select {
     width: 280px;
     display: none;
     flex-direction: column;
-    z-index: 1000;
-    animation: menuFadeUp 0.2s ease;
+    z-index: 2000;
+    animation: menuFadeUp 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes menuFadeUp {
@@ -1969,6 +1971,8 @@ input, textarea, select {
         min-height: 40px;
         align-items: center;
         gap: 2px;
+        position: relative;
+        overflow: visible !important;
     }
     
     #chatInput { 
