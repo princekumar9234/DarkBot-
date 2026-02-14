@@ -139,10 +139,11 @@
                         <button class="input-extra-btn" title="Add" id="addBtn">
                             <i class="fas fa-plus"></i>
                         </button>
+                        <input type="file" id="fileInput" hidden multiple accept="image/*,.pdf,.txt">
 
                         <!-- Extra Menu Popup -->
                         <div class="extra-menu" id="extraMenu">
-                            <button class="extra-menu-item">
+                            <button class="extra-menu-item" id="uploadFileMenuBtn">
                                 <i class="fas fa-paperclip"></i>
                                 <span>Add photos & files</span>
                             </button>
@@ -168,12 +169,16 @@
                                 <span>More</span>
                             </button>
                         </div>
-                        <textarea
-                            id="chatInput"
-                            class="chat-input"
-                            placeholder="Message DarkBot"
-                            rows="1"
-                        ></textarea>
+                        
+                        <div class="input-content">
+                            <div id="filePreviewContainer" class="file-preview-container"></div>
+                            <textarea
+                                id="chatInput"
+                                class="chat-input"
+                                placeholder="Message DarkBot"
+                                rows="1"
+                            ></textarea>
+                        </div>
                         <div class="input-right-actions">
                             <button class="input-icon-btn mobile-only" title="Voice">
                                 <i class="fas fa-microphone"></i>
@@ -362,6 +367,76 @@
         });
     }
 
+    // ============================================
+    // File Upload Logic
+    // ============================================
+    const fileInput = document.getElementById('fileInput');
+    const uploadFileMenuBtn = document.getElementById('uploadFileMenuBtn');
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    let selectedFiles = [];
+
+    if (uploadFileMenuBtn) {
+        uploadFileMenuBtn.addEventListener('click', () => {
+            fileInput.click();
+            extraMenu.classList.remove('active');
+        });
+    }
+
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        handleFiles(files);
+        fileInput.value = ''; // Reset for same file selection
+    });
+
+    function handleFiles(files) {
+        files.forEach(file => {
+            if (selectedFiles.length >= 5) {
+                showToast('Maximum 5 files allowed.', 'error');
+                return;
+            }
+            
+            selectedFiles.push(file);
+            renderFilePreview(file);
+        });
+    }
+
+    function renderFilePreview(file) {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'file-preview-item';
+        
+        const isImage = file.type.startsWith('image/');
+        
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" alt="${file.name}">
+                    <div class="remove-file-btn"><i class="fas fa-times"></i></div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            const iconClass = file.type.includes('pdf') ? 'fa-file-pdf' : 'fa-file-alt';
+            previewItem.innerHTML = `
+                <i class="fas ${iconClass}"></i>
+                <div class="file-preview-name">${file.name}</div>
+                <div class="remove-file-btn"><i class="fas fa-times"></i></div>
+            `;
+        }
+
+        previewItem.querySelector('.remove-file-btn').addEventListener('click', () => {
+            selectedFiles = selectedFiles.filter(f => f !== file);
+            previewItem.remove();
+        });
+
+        filePreviewContainer.appendChild(previewItem);
+    }
+
+    function clearFiles() {
+        selectedFiles = [];
+        filePreviewContainer.innerHTML = '';
+    }
+
     // New Chat
     // ============================================
     document.getElementById('newChatBtn').addEventListener('click', startNewChat);
@@ -416,11 +491,21 @@
         welcomeScreen.style.display = 'none';
 
         // Add user message to chat
-        addMessage('user', message);
+        addMessage('user', message, selectedFiles);
 
-        // Clear input
+        const formData = new FormData();
+        formData.append('message', message);
+        formData.append('chatId', currentChatId || '');
+        formData.append('aiProvider', aiProvider);
+        
+        selectedFiles.forEach(file => {
+            formData.append('files', file);
+        });
+
+        // Clear input & files
         chatInput.value = '';
         chatInput.style.height = 'auto';
+        clearFiles();
 
         // Show typing indicator
         showTypingIndicator();
@@ -428,12 +513,7 @@
         try {
             const res = await fetch('/chat/send', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message,
-                    chatId: currentChatId,
-                    aiProvider
-                })
+                body: formData
             });
 
             const data = await res.json();
@@ -468,7 +548,7 @@
     // ============================================
     // Message Rendering
     // ============================================
-    function addMessage(role, content) {
+    function addMessage(role, content, files = []) {
         const messageEl = document.createElement('div');
         messageEl.className = `message ${role}`;
 
@@ -479,15 +559,39 @@
             ? marked.parse(content)
             : escapeHtml(content).replace(/\n/g, '<br>');
 
+        let attachmentsHtml = '';
+        if (files && files.length > 0) {
+            attachmentsHtml = '<div class="message-attachments">';
+            files.forEach(file => {
+                const isImage = file.type.startsWith('image/');
+                if (isImage) {
+                    const url = URL.createObjectURL(file);
+                    attachmentsHtml += `
+                        <div class="attachment-item image">
+                            <img src="${url}" alt="${file.name}" onclick="window.open('${url}')">
+                        </div>`;
+                } else {
+                    const iconClass = file.type.includes('pdf') ? 'fa-file-pdf' : 'fa-file-alt';
+                    attachmentsHtml += `
+                        <div class="attachment-item file">
+                            <i class="fas ${iconClass}"></i>
+                            <span>${file.name}</span>
+                        </div>`;
+                }
+            });
+            attachmentsHtml += '</div>';
+        }
+
         if (role === 'user') {
             messageEl.innerHTML = `
                 <div class="message-body">
+                    ${attachmentsHtml}
                     <div class="message-content">${renderedContent}</div>
                 </div>
             `;
         } else {
             // Assistant Message
-            const avatar = '🤖'; // Or custom icon
+            const avatar = '<img src="/img/bot-avatar.png" onerror="this.innerHTML=\'🤖\';this.outerHTML=this.innerHTML;" style="width:100%;height:100%;border-radius:50%;">'; 
             messageEl.innerHTML = `
                 <div class="message-row">
                     <div class="message-avatar">${avatar}</div>

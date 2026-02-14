@@ -5,6 +5,8 @@
 const Chat = require('../models/Chat');
 const { callOpenAI, callGemini } = require('../services/aiService');
 
+const pdfParse = require('pdf-parse');
+
 /**
  * @route   POST /chat/send
  * @desc    Send a message and get AI response
@@ -13,13 +15,38 @@ exports.sendMessage = async (req, res, next) => {
     try {
         const { message, chatId, aiProvider } = req.body;
         const userId = req.user._id;
+        const files = req.files || [];
 
-        if (!message || !message.trim()) {
+        if ((!message || !message.trim()) && files.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Message cannot be empty.'
+                message: 'Message or file is required.'
             });
         }
+
+        // Process attachments
+        const attachments = [];
+        let additionalContext = "";
+
+        for (const file of files) {
+            if (file.mimetype.startsWith('image/')) {
+                attachments.push({
+                    mimeType: file.mimetype,
+                    data: file.buffer.toString('base64')
+                });
+            } else if (file.mimetype === 'application/pdf') {
+                try {
+                    const data = await pdfParse(file.buffer);
+                    additionalContext += `\n\nContent from PDF (${file.originalname}):\n${data.text}`;
+                } catch (pdfErr) {
+                    console.error('PDF Parse Error:', pdfErr);
+                }
+            } else if (file.mimetype === 'text/plain') {
+                additionalContext += `\n\nContent from file (${file.originalname}):\n${file.buffer.toString()}`;
+            }
+        }
+
+        const finalMessage = message + additionalContext;
 
         // Determine AI provider
         const provider = aiProvider || req.user.preferences.aiProvider || 'gemini';
@@ -51,11 +78,16 @@ exports.sendMessage = async (req, res, next) => {
             timestamp: new Date()
         });
 
-        // Build conversation context (last 20 messages for context window)
+        // Build conversation context
         const contextMessages = chat.messages.slice(-20).map(m => ({
             role: m.role,
             content: m.content
         }));
+
+        // For the last user message, we might want to use the full message (including file text)
+        // while keeping the stored message clean.
+        const lastContextMsg = contextMessages[contextMessages.length - 1];
+        lastContextMsg.content = finalMessage;
 
         // Call AI provider
         let aiResponse;
@@ -63,7 +95,7 @@ exports.sendMessage = async (req, res, next) => {
             if (provider === 'openai') {
                 aiResponse = await callOpenAI(contextMessages);
             } else {
-                aiResponse = await callGemini(contextMessages);
+                aiResponse = await callGemini(contextMessages, attachments);
             }
         } catch (aiError) {
             console.error('AI API Error:', aiError.message);

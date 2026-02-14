@@ -8,11 +8,22 @@ const { sendMessage, getChatHistory, getChat, deleteChat, clearAllChats } = requ
 const { authMiddleware } = require('../middleware/authMiddleware');
 const { chatLimiter } = require('../middleware/rateLimiter');
 
+const multer = require('multer');
+
+// Configure multer for memory storage
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+        files: 5 // Max 5 files
+    }
+});
+
 // All chat routes require authentication
 router.use(authMiddleware);
 
-// POST /chat/send - Send message and get AI response
-router.post('/send', chatLimiter, sendMessage);
+// POST /chat/send - Send message and get AI response (Supports multimodality)
+router.post('/send', chatLimiter, upload.array('files', 5), sendMessage);
 
 // GET /chat/history - Get all chats
 router.get('/history', getChatHistory);

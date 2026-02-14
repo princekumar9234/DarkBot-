@@ -58,7 +58,7 @@ async function callOpenAI(messages) {
  * @param {Array} messages - Array of { role, content } objects
  * @returns {string} AI response content
  */
-async function callGemini(messages) {
+async function callGemini(messages, attachments = []) {
     const key = process.env.GEMINI_API_KEY;
     if (!key || key === 'your_gemini_api_key_here') {
         throw new Error('Gemini API key is not configured.');
@@ -78,13 +78,25 @@ async function callGemini(messages) {
             },
         });
 
-        // Prepend system prompt to the actual message for now to be safe
+        // Prepend system prompt to the actual message for now
         const lastMsg = messages[messages.length - 1].content;
-        const prompt = messages.length === 1 
-            ? `${SYSTEM_PROMPT}\n\nUser: ${lastMsg}` 
+        const promptText = messages.length === 1
+            ? `${SYSTEM_PROMPT}\n\nUser: ${lastMsg}`
             : lastMsg;
 
-        const result = await chat.sendMessage(prompt);
+        // Build message parts (Text + Attachments)
+        const parts = [{ text: promptText }];
+        
+        attachments.forEach(att => {
+            parts.push({
+                inlineData: {
+                    mimeType: att.mimeType,
+                    data: att.data
+                }
+            });
+        });
+
+        const result = await chat.sendMessage(parts);
         const response = await result.response;
         return response.text();
     } catch (error) {
