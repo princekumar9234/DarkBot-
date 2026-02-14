@@ -13,7 +13,13 @@ const pdfParse = require('pdf-parse');
  */
 exports.sendMessage = async (req, res, next) => {
     try {
-        const { message, chatId, aiProvider } = req.body;
+        // Add logging to debug req.body issue
+        console.log('--- New Message Request ---');
+        console.log('Content-Type:', req.headers['content-type']);
+        console.log('Body:', req.body);
+        
+        const body = req.body || {};
+        const { message, chatId, aiProvider } = body;
         const userId = req.user._id;
         const files = req.files || [];
 

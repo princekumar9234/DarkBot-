@@ -1495,6 +1495,33 @@ input, textarea, select {
     color: var(--text-primary);
 }
 
+/* Welcome Logo */
+.welcome-logo {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: zoomIn 0.5s ease;
+}
+
+.welcome-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 .chat-input {
     flex: 1;
     padding: 10px 4px;
