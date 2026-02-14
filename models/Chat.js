@@ -49,9 +49,8 @@ const chatSchema = new mongoose.Schema({
 });
 
 // Update the updatedAt field on save
-chatSchema.pre('save', function (next) {
+chatSchema.pre('save', function () {
     this.updatedAt = Date.now();
-    next();
 });
 
 // Auto-generate title from the first user message
