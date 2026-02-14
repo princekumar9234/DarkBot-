@@ -87,18 +87,12 @@
                     </button>
                 </div>
                 <div class="topbar-center">
-                    <div class="topbar-title">
-                        DarkBot
-                        <span class="provider-badge" id="providerBadge">
-                            <%= user.preferences.aiProvider === 'openai' ? 'ChatGPT' : 'Gemini' %>
-                        </span>
+                    <div class="topbar-title-pill">
+                        <span>DarkBot</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px; opacity: 0.5;"></i>
                     </div>
                 </div>
                 <div class="topbar-right">
-                    <button class="topbar-btn hidden" id="shareChatBtn" title="Share Chat">
-                        <i class="fas fa-arrow-up-from-bracket"></i>
-                        <span class="btn-label-mobile">Share</span>
-                    </button>
                     <button class="topbar-btn" id="newChatTopBtn" title="New Chat">
                         <i class="fas fa-pen-to-square"></i>
                     </button>
@@ -116,17 +110,17 @@
                                 <i class="fas fa-image text-green"></i> 
                                 <span>Create image</span>
                             </button>
-                            <button class="suggestion-btn" onclick="setPrompt('Brainstorm ideas for ')">
-                                <i class="fas fa-lightbulb text-yellow"></i> 
-                                <span>Brainstorm</span>
-                            </button>
-                            <button class="suggestion-btn" onclick="setPrompt('Analyze this data: ')">
-                                <i class="fas fa-chart-simple text-blue"></i> 
-                                <span>Analyze data</span>
-                            </button>
                             <button class="suggestion-btn" onclick="setPrompt('Help me write ')">
                                 <i class="fas fa-pen-nib text-purple"></i> 
                                 <span>Help me write</span>
+                            </button>
+                            <button class="suggestion-btn" onclick="setPrompt('Summarize text ')">
+                                <i class="fas fa-file-alt text-orange"></i> 
+                                <span>Summarize text</span>
+                            </button>
+                            <button class="suggestion-btn" onclick="setPrompt('Brainstorm ideas for ')">
+                                <i class="fas fa-lightbulb text-yellow"></i> 
+                                <span>Brainstorm</span>
                             </button>
                         </div>
                     </div>
@@ -139,25 +133,30 @@
             <div class="input-area">
                 <div class="input-wrapper">
                     <div class="input-container" id="inputContainer">
-                        <button class="input-attach-btn" title="Attach" id="attachBtn">
+                        <button class="input-extra-btn" title="Add" id="addBtn">
                             <i class="fas fa-plus"></i>
                         </button>
                         <textarea
                             id="chatInput"
                             class="chat-input"
-                            placeholder="Ask anything"
+                            placeholder="Message DarkBot"
                             rows="1"
-                            autofocus
                         ></textarea>
-                        <div class="input-actions">
+                        <div class="input-right-actions">
+                            <button class="input-icon-btn mobile-only" title="Voice">
+                                <i class="fas fa-microphone"></i>
+                            </button>
                             <button class="send-btn" id="sendBtn" disabled title="Send message">
                                 <i class="fas fa-arrow-up"></i>
                             </button>
+                            <button class="input-icon-btn mobile-only wave-icon" title="Audio">
+                                <i class="fas fa-waveform"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="input-footer">
-                        DarkBot can make mistakes. Consider checking important information.
-                    </div>
+                </div>
+                <div class="input-footer">
+                    DarkBot can make mistakes. Check important info.
                 </div>
             </div>
         </main>

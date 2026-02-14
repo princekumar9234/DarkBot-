@@ -806,40 +806,22 @@ input, textarea, select {
     display: none !important; /* Force hide on desktop */
 }
 
-.topbar-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
+.topbar-title-pill {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.topbar-title .provider-badge {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
+    padding: 6px 14px;
+    background: var(--bg-secondary);
     border-radius: var(--radius-full);
-    background: var(--bg-tertiary);
-    color: var(--text-tertiary);
-    border: 1px solid var(--border-color);
-}
-
-.topbar-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-sm);
-    color: var(--text-secondary);
-    font-size: 18px;
-    transition: all var(--transition-fast);
-}
-
-.topbar-btn:hover {
-    background: var(--bg-hover);
+    font-size: 15px;
+    font-weight: 600;
     color: var(--text-primary);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.topbar-title-pill:hover {
+    background: var(--bg-hover);
 }
 
 /* ============================================
@@ -854,7 +836,7 @@ input, textarea, select {
 }
 
 .messages-container {
-    max-width: 768px;
+    max-width: 800px;
     width: 100%;
     margin: 0 auto;
     padding: 20px 24px;
@@ -870,22 +852,15 @@ input, textarea, select {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
     padding: 40px 24px;
     animation: welcomeFadeIn 0.6s ease;
 }
 
-@keyframes welcomeFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 .welcome-title-main {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 24px;
-    text-align: center;
+    margin-bottom: 32px;
 }
 
 .welcome-suggestions {
@@ -900,35 +875,35 @@ input, textarea, select {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 12px 16px;
-    background: var(--bg-secondary);
+    padding: 14px 18px;
+    background: transparent;
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     text-align: left;
+    gap: 8px;
     transition: all var(--transition-fast);
 }
 
 .suggestion-btn:hover {
     background: var(--bg-hover);
-    transform: translateY(-2px);
+    border-color: var(--text-tertiary);
 }
 
 .suggestion-btn i {
-    font-size: 20px;
-    margin-bottom: 8px;
+    font-size: 18px;
 }
 
 .suggestion-btn span {
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
     color: var(--text-secondary);
+    font-weight: 500;
 }
-
 /* Suggestion Icon Colors */
 .text-green { color: #10b981; }
 .text-yellow { color: #f59e0b; }
 .text-blue { color: #3b82f6; }
 .text-purple { color: #8b5cf6; }
+.text-orange { color: #f97316; }
 
 /* Message Bubbles */
 /* Message Bubbles & Layout */
@@ -1247,55 +1222,69 @@ input, textarea, select {
    Chat Input Area
    ============================================ */
 .input-area {
-    padding: 0 24px 20px;
-    background: var(--bg-primary);
+    padding: 0 24px 24px;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+/* Input Area - ChatGPT Style Pill */
+.input-area {
+    padding: 0 24px 24px;
+    background: transparent;
     flex-shrink: 0;
 }
 
 .input-wrapper {
-    max-width: 768px;
+    max-width: 800px;
+    width: 100%;
     margin: 0 auto;
-    position: relative;
+    display: flex;
+    align-items: flex-end;
 }
 
 .input-container {
+    flex: 1;
     display: flex;
     align-items: flex-end;
-    gap: 0;
-    background: var(--bg-input);
+    padding: 6px 12px 6px 6px;
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
-    padding: 4px 8px 4px 4px;
+    border-radius: 26px;
+    gap: 4px;
     transition: all var(--transition-fast);
+    min-height: 48px;
 }
 
 .input-container:focus-within {
-    border-color: var(--border-light);
-    box-shadow: 0 0 0 1px var(--border-light);
+    border-color: var(--text-tertiary);
 }
 
-.input-attach-btn {
+.input-extra-btn {
     width: 36px;
     height: 36px;
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    background: transparent;
+    border: none;
     color: var(--text-secondary);
-    flex-shrink: 0;
+    font-size: 18px;
+    cursor: pointer;
     transition: all var(--transition-fast);
+    flex-shrink: 0;
+    margin-bottom: 2px;
 }
 
-.input-attach-btn:hover {
+.input-extra-btn:hover {
     background: var(--bg-hover);
     color: var(--text-primary);
 }
 
 .chat-input {
     flex: 1;
-    padding: 8px 8px;
-    font-size: 15px;
+    padding: 10px 4px;
+    font-size: 16px;
     line-height: 1.5;
     border: none;
     background: none;
@@ -1304,17 +1293,33 @@ input, textarea, select {
     max-height: 200px;
     min-height: 24px;
     overflow-y: auto;
+    outline: none;
 }
 
-.chat-input::placeholder {
-    color: var(--text-tertiary);
-}
-
-.input-actions {
+.input-right-actions {
     display: flex;
     align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
+    gap: 8px;
+    padding-bottom: 2px;
+}
+
+.input-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.input-icon-btn:hover {
+    background: var(--bg-hover);
 }
 
 .send-btn {
@@ -1331,19 +1336,17 @@ input, textarea, select {
     transition: all var(--transition-fast);
 }
 
-.send-btn:hover:not(:disabled) {
-    opacity: 0.8;
-}
-
 .send-btn:disabled {
-    opacity: 0.3;
+    background: var(--bg-active);
+    color: var(--text-tertiary);
     cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .input-footer {
     text-align: center;
-    padding-top: 8px;
-    font-size: 11px;
+    padding-top: 12px;
+    font-size: 12px;
     color: var(--text-tertiary);
 }
 
@@ -1831,18 +1834,24 @@ input, textarea, select {
 }
 
 @media (max-width: 480px) {
-    .topbar-title { font-size: 14px; font-weight: 600; }
-    .topbar-title span { display: none; }
-    .provider-badge { padding: 2px 6px; font-size: 10px; opacity: 0.8; }
-
     /* Welcome Screen & Suggestions */
-    .welcome-screen { padding-bottom: 90px; justify-content: center; } /* Push up for input */
-    .welcome-title-main { font-size: 20px; margin-bottom: 20px; }
+    .welcome-screen { padding-bottom: 20px; justify-content: center; } 
+    .welcome-title-main { font-size: 24px; margin-bottom: 32px; text-align: center; }
     
-    .welcome-suggestions { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 8px; }
-    .suggestion-btn { padding: 12px; align-items: center; text-align: center; height: 100%; }
-    .suggestion-btn i { font-size: 20px; margin-bottom: 6px; }
-    .suggestion-btn span { font-size: 12px; font-weight: 500; }
+    .welcome-suggestions { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 8px; 
+        padding: 0 4px;
+        width: 100%;
+        max-width: 100%;
+    }
+    .suggestion-btn { 
+        padding: 12px; 
+        border-radius: var(--radius-md); 
+        min-height: 80px;
+    }
+    .suggestion-btn i { font-size: 16px; }
+    .suggestion-btn span { font-size: 12px; line-height: 1.3; }
 
     /* Floating Input Bar (ChatGPT Mobile Style) */
     .input-area {
@@ -1850,39 +1859,67 @@ input, textarea, select {
         bottom: 0;
         left: 0;
         width: 100%;
-        padding: 12px 16px 20px;
-        background: linear-gradient(to top, var(--bg-primary) 85%, transparent);
+        padding: 8px 12px 24px;
+        background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
         z-index: 100;
+        box-sizing: border-box;
     }
 
-    .input-wrapper { max-width: 100%; }
+    .input-wrapper { 
+        max-width: 100%;
+        gap: 0;
+    }
+
+    .input-extra-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+        align-self: center;
+    }
 
     .input-container {
-        padding: 6px 6px 6px 12px;
+        padding: 4px 6px 4px 6px;
         border-radius: 28px;
         background: var(--bg-secondary);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        min-height: 40px;
+        align-items: center;
+        gap: 2px;
+    }
+    
+    #chatInput { 
+        font-size: 16px; 
+        padding: 8px 0; 
+        max-height: 150px; 
     }
 
-    .input-attach-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-hover); }
-    
-    #chatInput { font-size: 16px; padding: 10px 8px; max-height: 120px; }
+    .input-right-actions {
+        gap: 8px;
+        padding-bottom: 2px;
+    }
+
+    .input-icon-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
 
     .send-btn { 
-        width: 32px; height: 32px; border-radius: 50%; 
-        background: var(--accent); color: white;
+        width: 30px; 
+        height: 30px; 
+        font-size: 12px;
     }
-    .send-btn:disabled { background: var(--bg-active); color: var(--text-tertiary); }
 
     /* Content Area */
-    .chat-area { padding-bottom: 90px; } /* Ensure content isn't hidden behind input */
-    .messages-container { padding: 16px; }
+    .chat-area { padding-bottom: 100px; } 
+    .messages-container { padding: 12px; }
     
-    .message { padding: 12px 0; gap: 12px; }
-    .message-avatar { width: 28px; height: 28px; font-size: 12px; }
-    .message-content { font-size: 15px; line-height: 1.55; }
-    
+    .message { padding: 12px 0; gap: 8px; }
+
     /* Settings */
     .settings-page { padding: 20px 12px; padding-bottom: 100px; }
     .settings-container { width: 100%; max-width: 100%; }
@@ -1914,6 +1951,26 @@ input, textarea, select {
     .auth-logo h1 { font-size: 28px; }
     .form-group label { font-size: 13px; }
     .auth-btn { padding: 14px; font-size: 15px; }
+    
+    /* Top Bar Tablet/Mobile Pill Mode */
+    .topbar-title-pill {
+        padding: 4px 8px;
+        font-size: 13px;
+        gap: 4px;
+    }
+    .topbar-title-pill i {
+        display: none;
+    }
+}
+
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .mobile-only {
+        display: flex;
+    }
 }
 
 /* Touch Device Refinements */
