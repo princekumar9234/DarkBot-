@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="<%= user.preferences.theme === 'system' ? 'dark' : user.preferences.theme %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chat with DarkBot - your AI-powered assistant.">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root { --accent: <%= user.preferences.accentColor || '#8b5cf6' %>; }
+        :root { --accent-hover: color-mix(in srgb, var(--accent) 85%, black); }
+        :root { --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent); }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- ============================================ -->
+        <!-- Sidebar -->
+        <!-- ============================================ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Chat</span>
+                </button>
+            </div>
+
+            <div class="sidebar-chats" id="sidebarChats">
+                <div class="sidebar-section-title">Recent Chats</div>
+                <!-- Chat items will be dynamically loaded here -->
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-footer-btn" onclick="window.location.href='/settings'">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <button class="sidebar-footer-btn danger" id="clearAllBtn">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Clear all chats</span>
+                </button>
+                <div class="sidebar-user" onclick="window.location.href='/settings'">
+                    <div class="sidebar-user-avatar" id="userAvatar">
+                        <%= user.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <span class="sidebar-user-name"><%= user.name %></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================ -->
+        <!-- Main Content -->
+        <!-- ============================================ -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="topbar-title">
+                        DarkBot
+                        <span class="provider-badge" id="providerBadge">
+                            <%= user.preferences.aiProvider === 'openai' ? 'ChatGPT' : 'Gemini' %>
+                        </span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button class="topbar-btn" id="newChatTopBtn" title="New Chat">
+                        <i class="fas fa-pen-to-square"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Welcome Screen (shown when no messages) -->
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h2 class="welcome-title">How can I help you today?</h2>
+                        <p class="welcome-subtitle">
+                            I'm DarkBot, your AI assistant powered by cutting-edge language models. Ask me anything!
+                        </p>
+                        <div class="welcome-suggestions">
+                            <div class="suggestion-card" data-prompt="Explain quantum computing in simple terms">
+                                <div class="suggestion-card-title">🔬 Explain quantum computing</div>
+                                <div class="suggestion-card-desc">in simple terms</div>
+                            </div>
+                            <div class="suggestion-card" data-prompt="Write a Python script to sort a list of numbers">
+                                <div class="suggestion-card-title">💻 Write a Python script</div>
+                                <div class="suggestion-card-desc">to sort a list of numbers</div>
+                            </div>
+                            <div class="suggestion-card" data-prompt="Give me creative ideas for a birthday party">
+                                <div class="suggestion-card-title">🎉 Birthday party ideas</div>
+                                <div class="suggestion-card-desc">creative and fun suggestions</div>
+                            </div>
+                            <div class="suggestion-card" data-prompt="Help me write a professional email to my manager">
+                                <div class="suggestion-card-title">✉️ Write a professional email</div>
+                                <div class="suggestion-card-desc">to your manager</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages will be appended here -->
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <div class="input-container" id="inputContainer">
+                        <textarea
+                            id="chatInput"
+                            class="chat-input"
+                            placeholder="Message DarkBot..."
+                            rows="1"
+                            autofocus
+                        ></textarea>
+                        <button class="send-btn" id="sendBtn" disabled title="Send message">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        DarkBot can make mistakes. Consider checking important information.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirm Action</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal')">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="settings-btn outline" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="settings-btn danger" id="confirmAction">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ============================================
+    // DarkBot Chat - Client-Side Logic
+    // ============================================
+
+    // State
+    let currentChatId = null;
+    let isLoading = false;
+    const currentUser = <%- JSON.stringify(user) %>;
+    const aiProvider = currentUser.preferences?.aiProvider || 'gemini';
+
+    // DOM Elements
+    const chatArea = document.getElementById('chatArea');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const sidebarChats = document.getElementById('sidebarChats');
+
+    // ============================================
+    // Theme System
+    // ============================================
+    function applySystemTheme() {
+        if (currentUser.preferences?.theme === 'system') {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        }
+    }
+    applySystemTheme();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySystemTheme);
+
+    // ============================================
+    // Sidebar Toggle
+    // ============================================
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        sidebarBackdrop.classList.toggle('active');
+    });
+
+    sidebarBackdrop.addEventListener('click', () => {
+        sidebar.classList.add('collapsed');
+        sidebarBackdrop.classList.remove('active');
+    });
+
+    // Collapse sidebar on mobile by default
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add('collapsed');
+    }
+
+    // ============================================
+    // Textarea Auto-resize
+    // ============================================
+    chatInput.addEventListener('input', () => {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + 'px';
+        sendBtn.disabled = !chatInput.value.trim();
+    });
+
+    // Send message on Enter
+    chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (chatInput.value.trim() && !isLoading) {
+                sendMessage();
+            }
+        }
+    });
+
+    sendBtn.addEventListener('click', () => {
+        if (chatInput.value.trim() && !isLoading) {
+            sendMessage();
+        }
+    });
+
+    // ============================================
+    // New Chat
+    // ============================================
+    document.getElementById('newChatBtn').addEventListener('click', startNewChat);
+    document.getElementById('newChatTopBtn').addEventListener('click', startNewChat);
+
+    function startNewChat() {
+        currentChatId = null;
+        // Clear messages
+        const messages = messagesContainer.querySelectorAll('.message, .typing-indicator');
+        messages.forEach(m => m.remove());
+        welcomeScreen.style.display = 'flex';
+
+        // Deselect sidebar items
+        document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+
+        chatInput.focus();
+
+        // Close sidebar on mobile
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            sidebarBackdrop.classList.remove('active');
+        }
+    }
+
+    // ============================================
+    // Suggestion Cards
+    // ============================================
+    document.querySelectorAll('.suggestion-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const prompt = card.getAttribute('data-prompt');
+            chatInput.value = prompt;
+            chatInput.dispatchEvent(new Event('input'));
+            sendMessage();
+        });
+    });
+
+    // ============================================
+    // Send Message
+    // ============================================
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message || isLoading) return;
+
+        isLoading = true;
+        sendBtn.disabled = true;
+
+        // Hide welcome screen
+        welcomeScreen.style.display = 'none';
+
+        // Add user message to chat
+        addMessage('user', message);
+
+        // Clear input
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+            const res = await fetch('/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message,
+                    chatId: currentChatId,
+                    aiProvider
+                })
+            });
+
+            const data = await res.json();
+
+            // Remove typing indicator
+            removeTypingIndicator();
+
+            if (data.success) {
+                currentChatId = data.chatId;
+
+                // Add AI response
+                addMessage('assistant', data.response);
+
+                // Refresh sidebar
+                loadChatHistory();
+            } else {
+                addMessage('assistant', '⚠️ ' + (data.message || 'Something went wrong. Please try again.'));
+            }
+        } catch (err) {
+            removeTypingIndicator();
+            addMessage('assistant', '⚠️ Network error. Please check your connection and try again.');
+        }
+
+        isLoading = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+    }
+
+    // ============================================
+    // Message Rendering
+    // ============================================
+    function addMessage(role, content) {
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${role}`;
+
+        const avatarText = role === 'user'
+            ? currentUser.name.charAt(0).toUpperCase()
+            : '🤖';
+
+        // Configure marked for markdown rendering
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            highlight: false
+        });
+
+        const renderedContent = role === 'assistant'
+            ? marked.parse(content)
+            : escapeHtml(content).replace(/\n/g, '<br>');
+
+        messageEl.innerHTML = `
+            <div class="message-avatar">${avatarText}</div>
+            <div class="message-body">
+                <div class="message-role">${role === 'user' ? 'You' : 'DarkBot'}</div>
+                <div class="message-content">${renderedContent}</div>
+            </div>
+        `;
+
+        messagesContainer.appendChild(messageEl);
+
+        // Add copy buttons to code blocks
+        if (role === 'assistant') {
+            messageEl.querySelectorAll('pre').forEach(pre => {
+                const code = pre.querySelector('code');
+                if (code) {
+                    // Detect language
+                    const langClass = code.className || '';
+                    const lang = langClass.replace('language-', '') || 'code';
+
+                    const header = document.createElement('div');
+                    header.className = 'code-block-header';
+                    header.innerHTML = `
+                        <span>${lang}</span>
+                        <button class="copy-code-btn" onclick="copyCode(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    `;
+                    pre.insertBefore(header, code);
+                }
+            });
+        }
+
+        scrollToBottom();
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function copyCode(btn) {
+        const pre = btn.closest('pre');
+        const code = pre.querySelector('code');
+        navigator.clipboard.writeText(code.textContent).then(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            }, 2000);
+        });
+    }
+
+    // ============================================
+    // Typing Indicator
+    // ============================================
+    function showTypingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator';
+        indicator.id = 'typingIndicator';
+        indicator.innerHTML = `
+            <div class="message-avatar" style="background: linear-gradient(135deg, var(--accent), #3b82f6); color: white;">🤖</div>
+            <div class="message-body">
+                <div class="message-role">DarkBot</div>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+        messagesContainer.appendChild(indicator);
+        scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    // ============================================
+    // Scroll to Bottom
+    // ============================================
+    function scrollToBottom() {
+        chatArea.scrollTo({
+            top: chatArea.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
+    // ============================================
+    // Chat History
+    // ============================================
+    async function loadChatHistory() {
+        try {
+            const res = await fetch('/chat/history');
+            const data = await res.json();
+
+            if (data.success) {
+                renderChatHistory(data.chats);
+            }
+        } catch (err) {
+            console.error('Failed to load chat history:', err);
+        }
+    }
+
+    function renderChatHistory(chats) {
+        // Keep the section title
+        sidebarChats.innerHTML = '<div class="sidebar-section-title">Recent Chats</div>';
+
+        if (chats.length === 0) {
+            sidebarChats.innerHTML += `
+                <div style="text-align: center; padding: 20px; color: var(--text-tertiary); font-size: 13px;">
+                    No chats yet. Start a new conversation!
+                </div>
+            `;
+            return;
+        }
+
+        chats.forEach(chat => {
+            const chatItem = document.createElement('div');
+            chatItem.className = `chat-item ${chat._id === currentChatId ? 'active' : ''}`;
+            chatItem.setAttribute('data-id', chat._id);
+            chatItem.innerHTML = `
+                <i class="fas fa-message chat-item-icon"></i>
+                <span class="chat-item-title">${escapeHtml(chat.title)}</span>
+                <button class="chat-item-delete" onclick="event.stopPropagation(); deleteChat('${chat._id}')" title="Delete chat">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            chatItem.addEventListener('click', () => loadChat(chat._id));
+            sidebarChats.appendChild(chatItem);
+        });
+    }
+
+    // ============================================
+    // Load Specific Chat
+    // ============================================
+    async function loadChat(chatId) {
+        try {
+            const res = await fetch(`/chat/${chatId}`);
+            const data = await res.json();
+
+            if (data.success) {
+                currentChatId = chatId;
+
+                // Clear current messages
+                const messages = messagesContainer.querySelectorAll('.message, .typing-indicator');
+                messages.forEach(m => m.remove());
+                welcomeScreen.style.display = 'none';
+
+                // Add messages
+                data.chat.messages.forEach(msg => {
+                    if (msg.role === 'user' || msg.role === 'assistant') {
+                        addMessage(msg.role, msg.content);
+                    }
+                });
+
+                // Update active state
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-id') === chatId);
+                });
+
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    sidebarBackdrop.classList.remove('active');
+                }
+            }
+        } catch (err) {
+            showToast('Failed to load chat', 'error');
+        }
+    }
+
+    // ============================================
+    // Delete Chat
+    // ============================================
+    function deleteChat(chatId) {
+        showConfirm('Delete Chat', 'Are you sure you want to delete this chat?', async () => {
+            try {
+                const res = await fetch(`/chat/${chatId}`, { method: 'DELETE' });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (currentChatId === chatId) {
+                        startNewChat();
+                    }
+                    loadChatHistory();
+                    showToast('Chat deleted', 'success');
+                }
+            } catch (err) {
+                showToast('Failed to delete chat', 'error');
+            }
+        });
+    }
+
+    // ============================================
+    // Clear All Chats
+    // ============================================
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+        showConfirm('Clear All Chats', 'This will permanently delete all your chats. Are you sure?', async () => {
+            try {
+                const res = await fetch('/chat/clear/all', { method: 'DELETE' });
+                const data = await res.json();
+
+                if (data.success) {
+                    startNewChat();
+                    loadChatHistory();
+                    showToast('All chats cleared', 'success');
+                }
+            } catch (err) {
+                showToast('Failed to clear chats', 'error');
+            }
+        });
+    });
+
+    // ============================================
+    // Confirm Modal
+    // ============================================
+    function showConfirm(title, message, onConfirm) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmModal').classList.add('active');
+
+        const actionBtn = document.getElementById('confirmAction');
+        const newBtn = actionBtn.cloneNode(true);
+        actionBtn.parentNode.replaceChild(newBtn, actionBtn);
+        newBtn.id = 'confirmAction';
+        newBtn.addEventListener('click', () => {
+            closeModal('confirmModal');
+            onConfirm();
+        });
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    // Close modal on overlay click
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeModal('confirmModal');
+    });
+
+    // ============================================
+    // Toast Notifications
+    // ============================================
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        const icon = type === 'success' ? 'fa-check-circle'
+            : type === 'error' ? 'fa-exclamation-circle'
+            : 'fa-info-circle';
+
+        toast.innerHTML = `<i class="fas ${icon}"></i>${message}`;
+        container.appendChild(toast);
+
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ============================================
+    // Initialize
+    // ============================================
+    loadChatHistory();
+    chatInput.focus();
+    </script>
+</body>
+</html>
