@@ -81,6 +81,11 @@
         <main class="main-content">
             <!-- Top Bar -->
             <div class="topbar">
+                <div class="topbar-left">
+                    <button class="topbar-btn sidebar-toggle-mobile" id="mobileSidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
                 <div class="topbar-center">
                     <div class="topbar-title">
                         DarkBot
@@ -90,6 +95,10 @@
                     </div>
                 </div>
                 <div class="topbar-right">
+                    <button class="topbar-btn hidden" id="shareChatBtn" title="Share Chat">
+                        <i class="fas fa-arrow-up-from-bracket"></i>
+                        <span class="btn-label-mobile">Share</span>
+                    </button>
                     <button class="topbar-btn" id="newChatTopBtn" title="New Chat">
                         <i class="fas fa-pen-to-square"></i>
                     </button>
@@ -101,7 +110,25 @@
                 <div class="messages-container" id="messagesContainer">
                     <!-- Welcome Screen - ChatGPT Style -->
                     <div class="welcome-screen" id="welcomeScreen">
-                        <h1 class="welcome-title-main">Where should we begin?</h1>
+                        <h1 class="welcome-title-main">What can I help with?</h1>
+                        <div class="welcome-suggestions">
+                            <button class="suggestion-btn" onclick="setPrompt('Create an image of ')">
+                                <i class="fas fa-image text-green"></i> 
+                                <span>Create image</span>
+                            </button>
+                            <button class="suggestion-btn" onclick="setPrompt('Brainstorm ideas for ')">
+                                <i class="fas fa-lightbulb text-yellow"></i> 
+                                <span>Brainstorm</span>
+                            </button>
+                            <button class="suggestion-btn" onclick="setPrompt('Analyze this data: ')">
+                                <i class="fas fa-chart-simple text-blue"></i> 
+                                <span>Analyze data</span>
+                            </button>
+                            <button class="suggestion-btn" onclick="setPrompt('Help me write ')">
+                                <i class="fas fa-pen-nib text-purple"></i> 
+                                <span>Help me write</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Messages will be appended here -->
@@ -193,22 +220,38 @@
 
     // Sidebar Toggle
     // ============================================
-    document.getElementById('sidebarCollapseBtn').addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        if (!sidebar.classList.contains('collapsed')) {
-            sidebarBackdrop.classList.add('active');
-        } else {
-            sidebarBackdrop.classList.remove('active');
+    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+    
+    function toggleSidebar() {
+        const isCollapsed = sidebar.classList.toggle('collapsed');
+        // Only show backdrop on mobile
+        if (window.innerWidth <= 768) {
+            sidebarBackdrop.classList.toggle('active', !isCollapsed);
         }
-    });
+    }
+
+    // Desktop Toggle (Hamburger inside sidebar)
+    document.getElementById('sidebarCollapseBtn').addEventListener('click', toggleSidebar);
+
+    // Mobile Toggle (Hamburger in topbar)
+    if (mobileSidebarToggle) {
+        mobileSidebarToggle.addEventListener('click', () => {
+             sidebar.classList.remove('collapsed');
+             sidebarBackdrop.classList.add('active');
+        });
+    }
 
     sidebarBackdrop.addEventListener('click', () => {
         sidebar.classList.add('collapsed');
         sidebarBackdrop.classList.remove('active');
     });
 
-    // Start with sidebar collapsed (icon bar only)
-    sidebar.classList.add('collapsed');
+    // Initialization: Collapse on mobile, open on desktop
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add('collapsed');
+    } else {
+        sidebar.classList.remove('collapsed');
+    }
 
     // ============================================
     // User Profile Dropdown
@@ -274,6 +317,13 @@
     document.getElementById('newChatBtn').addEventListener('click', startNewChat);
     document.getElementById('newChatNavBtn').addEventListener('click', startNewChat);
     document.getElementById('newChatTopBtn').addEventListener('click', startNewChat);
+    
+    document.getElementById('shareChatBtn').addEventListener('click', () => {
+        const shareUrl = window.location.origin + '/chat/' + (currentChatId || '');
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            showToast('Chat link copied!', 'success');
+        });
+    });
 
     function startNewChat() {
         currentChatId = null;
@@ -286,10 +336,11 @@
         chatInput.style.height = 'auto';
         chatInput.focus();
 
+        // Hide Share button
+        document.getElementById('shareChatBtn').classList.add('hidden');
+
         // Deselect sidebar items
         document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
-
-        chatInput.focus();
 
         // Close sidebar on mobile
         if (window.innerWidth <= 768) {
@@ -361,58 +412,96 @@
     // ============================================
     // Message Rendering
     // ============================================
+    // ============================================
+    // Message Rendering
+    // ============================================
     function addMessage(role, content) {
         const messageEl = document.createElement('div');
         messageEl.className = `message ${role}`;
 
-        const avatarText = role === 'user'
-            ? currentUser.name.charAt(0).toUpperCase()
-            : '🤖';
-
-        // Configure marked for markdown rendering
-        marked.setOptions({
-            breaks: true,
-            gfm: true,
-            highlight: false
-        });
+        // Configure marked for markdown
+        marked.setOptions({ breaks: true, gfm: true, highlight: false });
 
         const renderedContent = role === 'assistant'
             ? marked.parse(content)
             : escapeHtml(content).replace(/\n/g, '<br>');
 
-        messageEl.innerHTML = `
-            <div class="message-avatar">${avatarText}</div>
-            <div class="message-body">
-                <div class="message-role">${role === 'user' ? 'You' : 'DarkBot'}</div>
-                <div class="message-content">${renderedContent}</div>
-            </div>
-        `;
+        if (role === 'user') {
+            messageEl.innerHTML = `
+                <div class="message-body">
+                    <div class="message-content">${renderedContent}</div>
+                </div>
+            `;
+        } else {
+            // Assistant Message
+            const avatar = '🤖'; // Or custom icon
+            messageEl.innerHTML = `
+                <div class="message-row">
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-body">
+                        <div class="message-role">DarkBot</div>
+                        <div class="message-content">${renderedContent}</div>
+                    </div>
+                </div>
+                <div class="message-actions">
+                    <button class="action-btn" title="Copy" onclick="copyMessageText(this)">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn" title="Regenerate" onclick="regenerateResponse()">
+                        <i class="fas fa-rotate-right"></i>
+                    </button>
+                    ${role === 'assistant' ? `
+                    <button class="action-btn" title="Good response">
+                        <i class="fas fa-thumbs-up"></i>
+                    </button>
+                    <button class="action-btn" title="Bad response">
+                        <i class="fas fa-thumbs-down"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Show Share button when AI responds
+            document.getElementById('shareChatBtn').classList.remove('hidden');
+        }
 
         messagesContainer.appendChild(messageEl);
 
-        // Add copy buttons to code blocks
+        // Syntax highlighting logic (same as before)
         if (role === 'assistant') {
             messageEl.querySelectorAll('pre').forEach(pre => {
                 const code = pre.querySelector('code');
                 if (code) {
-                    // Detect language
-                    const langClass = code.className || '';
-                    const lang = langClass.replace('language-', '') || 'code';
-
+                    const lang = (code.className || '').replace('language-', '') || 'code';
                     const header = document.createElement('div');
                     header.className = 'code-block-header';
-                    header.innerHTML = `
-                        <span>${lang}</span>
-                        <button class="copy-code-btn" onclick="copyCode(this)">
-                            <i class="fas fa-copy"></i> Copy
-                        </button>
-                    `;
+                    header.innerHTML = `<span>${lang}</span><button class="copy-code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>`;
                     pre.insertBefore(header, code);
                 }
             });
         }
 
         scrollToBottom();
+    }
+
+    function copyMessageText(btn) {
+        const content = btn.closest('.message').querySelector('.message-content').innerText;
+        navigator.clipboard.writeText(content).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => btn.innerHTML = originalIcon, 2000);
+        });
+    }
+
+    // Placeholder for regenerate (user needs to implement logic)
+    function regenerateResponse() {
+        // Logic to resend last user message
+        const messages = document.querySelectorAll('.message.user');
+        if (messages.length > 0) {
+            const lastMsg = messages[messages.length - 1].innerText;
+            setPrompt(lastMsg);
+            // Optionally auto-submit: sendMessage();
+        }
     }
 
     function escapeHtml(text) {
@@ -430,6 +519,14 @@
                 btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
             }, 2000);
         });
+    }
+
+    function setPrompt(text) {
+        chatInput.value = text;
+        chatInput.focus();
+        // Trigger auto-resize logic
+        chatInput.dispatchEvent(new Event('input'));
+        sendBtn.disabled = false;
     }
 
     // ============================================
@@ -625,6 +722,14 @@
                         addMessage(msg.role, msg.content);
                     }
                 });
+                
+                // Toggle Share button
+                const shareBtn = document.getElementById('shareChatBtn');
+                if (data.chat.messages.length > 0) {
+                    shareBtn.classList.remove('hidden');
+                } else {
+                    shareBtn.classList.add('hidden');
+                }
 
                 // Update active state
                 document.querySelectorAll('.chat-item').forEach(item => {
