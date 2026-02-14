@@ -93,6 +93,9 @@
                     </div>
                 </div>
                 <div class="topbar-right">
+                    <button class="topbar-btn" id="shareChatBtn" title="Share Chat">
+                        <i class="fas fa-share-nodes"></i>
+                    </button>
                     <button class="topbar-btn" id="newChatTopBtn" title="New Chat">
                         <i class="fas fa-pen-to-square"></i>
                     </button>
@@ -136,6 +139,35 @@
                         <button class="input-extra-btn" title="Add" id="addBtn">
                             <i class="fas fa-plus"></i>
                         </button>
+
+                        <!-- Extra Menu Popup -->
+                        <div class="extra-menu" id="extraMenu">
+                            <button class="extra-menu-item">
+                                <i class="fas fa-paperclip"></i>
+                                <span>Add photos & files</span>
+                            </button>
+                            <button class="extra-menu-item">
+                                <i class="fas fa-image"></i>
+                                <span>Create image</span>
+                            </button>
+                            <button class="extra-menu-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Thinking</span>
+                            </button>
+                            <button class="extra-menu-item">
+                                <i class="fas fa-book-open"></i>
+                                <span>Study and learn</span>
+                            </button>
+                            <button class="extra-menu-item">
+                                <i class="fas fa-globe"></i>
+                                <span>Web search</span>
+                            </button>
+                            <div class="extra-menu-divider"></div>
+                            <button class="extra-menu-item">
+                                <i class="fas fa-ellipsis-h"></i>
+                                <span>More</span>
+                            </button>
+                        </div>
                         <textarea
                             id="chatInput"
                             class="chat-input"
@@ -311,18 +343,40 @@
     });
 
     // ============================================
+    // Extra Menu (+) Logic
+    // ============================================
+    const addBtn = document.getElementById('addBtn');
+    const extraMenu = document.getElementById('extraMenu');
+
+    if (addBtn && extraMenu) {
+        addBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            extraMenu.classList.toggle('active');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!extraMenu.contains(e.target) && !addBtn.contains(e.target)) {
+                extraMenu.classList.remove('active');
+            }
+        });
+    }
+
     // New Chat
     // ============================================
     document.getElementById('newChatBtn').addEventListener('click', startNewChat);
     document.getElementById('newChatNavBtn').addEventListener('click', startNewChat);
     document.getElementById('newChatTopBtn').addEventListener('click', startNewChat);
     
-    document.getElementById('shareChatBtn').addEventListener('click', () => {
-        const shareUrl = window.location.origin + '/chat/' + (currentChatId || '');
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            showToast('Chat link copied!', 'success');
+    const shareBtn = document.getElementById('shareChatBtn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            const shareUrl = window.location.origin + '/chat/' + (currentChatId || '');
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showToast('Chat link copied!', 'success');
+            });
         });
-    });
+    }
 
     function startNewChat() {
         currentChatId = null;
@@ -336,7 +390,7 @@
         chatInput.focus();
 
         // Hide Share button
-        document.getElementById('shareChatBtn').classList.add('hidden');
+        if (shareBtn) shareBtn.classList.add('hidden');
 
         // Deselect sidebar items
         document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
@@ -461,7 +515,7 @@
             `;
             
             // Show Share button when AI responds
-            document.getElementById('shareChatBtn').classList.remove('hidden');
+            if (shareBtn) shareBtn.classList.remove('hidden');
         }
 
         messagesContainer.appendChild(messageEl);

@@ -67,7 +67,7 @@ exports.sendMessage = async (req, res, next) => {
             }
         } catch (aiError) {
             console.error('AI API Error:', aiError.message);
-            aiResponse = "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again in a moment.";
+            aiResponse = `⚠️ AI Error: ${aiError.message}`;
         }
 
         // Add AI response
