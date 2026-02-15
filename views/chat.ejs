@@ -19,6 +19,12 @@
         :root { --accent-hover: color-mix(in srgb, var(--accent) 85%, black); }
         :root { --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent); }
         
+        body {
+            overflow: hidden !important;
+            height: 100vh !important;
+            width: 100vw !important;
+        }
+        
         .welcome-title-main {
             font-family: var(--font-outfit);
             font-weight: 700;
@@ -274,7 +280,7 @@
     // State
     let currentChatId = null;
     let isLoading = false;
-    const currentUser = <%- JSON.stringify(user) %>;
+    const currentUser = JSON.parse(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(user || {})) %>'));
     const aiProvider = currentUser.preferences?.aiProvider || 'gemini';
 
     // DOM Elements
