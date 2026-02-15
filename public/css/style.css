@@ -2035,7 +2035,7 @@ input, textarea, select {
     }
 
     .message {
-        padding: 12px 0;
+        padding: 10px 0;
         gap: 12px;
     }
 
@@ -2161,10 +2161,10 @@ input, textarea, select {
     }
 
     /* Content Area */
-    .chat-area { padding-bottom: 100px; } 
-    .messages-container { padding: 12px; }
+    .chat-area { padding-bottom: 110px; } 
+    .messages-container { padding: 8px 10px; }
     
-    .message { padding: 12px 0; gap: 8px; }
+    .message { padding: 10px 0; gap: 8px; }
 
     /* Settings */
     .settings-page { padding: 20px 12px; padding-bottom: 100px; }

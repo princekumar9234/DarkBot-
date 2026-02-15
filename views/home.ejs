@@ -59,9 +59,19 @@
         }
 
         .navbar.scrolled {
-            padding: 1rem 5%;
-            background: rgba(8, 8, 8, 0.95);
+            padding: 0.8rem 5%;
+            background: rgba(8, 8, 8, 0.98);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 24px;
+            color: #fff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
         }
 
         .nav-logo {
@@ -92,6 +102,18 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .drawer-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 10px 0;
         }
 
         .nav-links {
@@ -382,21 +404,120 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 991px) {
-            .hero h2 { font-size: 72px; }
-            .features-grid { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 1024px) {
+            .navbar { padding: 1.2rem 4%; }
+            .hero h2 { font-size: clamp(48px, 8vw, 76px); }
+            .features-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
         }
 
         @media (max-width: 768px) {
-            .navbar { padding: 1.2rem 6%; }
+            .navbar { padding: 1rem 5%; }
+            .nav-auth-btns { display: none; } /* Hide buttons in navbar, move to drawer */
+            .mobile-menu-btn { display: block; }
+            .nav-logo img { width: 34px; height: 34px; }
+            .nav-logo h1 { font-size: 20px; }
+            
             .nav-links { display: none; }
-            .hero { padding: 160px 6% 80px; }
-            .hero h2 { font-size: 54px; letter-spacing: -2px; }
-            .hero p { font-size: 20px; }
-            .hero-actions { flex-direction: column; align-items: stretch; }
-            .cta-primary, .cta-secondary { justify-content: center; }
-            .features-grid { grid-template-columns: 1fr; }
-            .feature-card { padding: 36px; }
+            
+            .hero { padding: 150px 5% 80px; }
+            .hero-tag { font-size: 11px; padding: 6px 14px; margin-bottom: 20px; }
+            .hero h2 { font-size: 3rem; letter-spacing: -1.5px; line-height: 1.1; }
+            .hero p { font-size: 17px; margin-bottom: 36px; line-height: 1.4; }
+            
+            .hero-actions { flex-direction: column; gap: 14px; padding: 0 10%; }
+            .cta-primary, .cta-secondary { 
+                padding: 14px 24px; 
+                font-size: 16px; 
+                justify-content: center;
+                border-radius: 14px;
+                width: 100%;
+            }
+
+            .features-container { padding: 60px 5%; }
+            .features-grid { grid-template-columns: 1fr; gap: 20px; }
+            .feature-card { padding: 28px; border-radius: 20px; }
+            .feature-card h3 { font-size: 22px; }
+            .f-icon { width: 56px; height: 56px; font-size: 20px; margin-bottom: 20px; }
+        }
+
+        /* Mobile Drawer Styles */
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background: #0d0d0d;
+            z-index: 2000;
+            transition: right 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            padding: 30px 20px;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            border-left: 1px solid var(--glass-border);
+        }
+
+        .mobile-drawer.active { right: 0; }
+
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .drawer-overlay.active { opacity: 1; visibility: visible; }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .close-drawer {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .drawer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .drawer-link {
+            font-size: 18px;
+            color: #b4b4b4;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .drawer-btn {
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .drawer-btn.primary { background: var(--accent-gradient); color: #fff; }
+        .drawer-btn.outline { border: 1px solid var(--glass-border); color: #fff; }
+
+        @media (max-width: 480px) {
+            .hero h2 { font-size: 2.5rem; line-height: 1; letter-spacing: -1px; }
+            .hero p { font-size: 15px; }
+            .navbar { padding: 0.8rem 5%; }
+            .nav-logo h1 { font-size: 18px; }
+            /* On tiny screens, hide label to prevent overflow if needed, but for now let's keep it compact */
         }
     </style>
 </head>
@@ -411,20 +532,53 @@
             <img src="/img/sharingan-logo.svg" alt="DarkBot">
             <h1>DarkBot</h1>
         </a>
+        
         <div class="nav-links">
             <a href="#features" class="nav-link">Features</a>
             <a href="https://github.com/princekumar9234" target="_blank" class="nav-link">Developer</a>
             <a href="/login" class="nav-link">Account</a>
         </div>
-        <div class="nav-auth-btns">
-            <% if (typeof user !== 'undefined' && user) { %>
-                <a href="/chat" class="btn-join">Open Dashboard</a>
-            <% } else { %>
-                <a href="/login" class="btn-log">Log In</a>
-                <a href="/signup" class="btn-join">Get Started</a>
-            <% } %>
+
+        <div class="nav-right">
+            <div class="nav-auth-btns">
+                <% if (typeof user !== 'undefined' && user) { %>
+                    <a href="/chat" class="btn-join">Open Dashboard</a>
+                <% } else { %>
+                    <a href="/login" class="btn-log">Log In</a>
+                    <a href="/signup" class="btn-join">Get Started</a>
+                <% } %>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars-staggered"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <a href="/" class="nav-logo">
+                <img src="/img/sharingan-logo.svg" alt="DarkBot">
+                <h1>DarkBot</h1>
+            </a>
+            <button class="close-drawer" id="closeDrawer">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="drawer-links">
+            <a href="#features" class="drawer-link" onclick="toggleDrawer()">Features</a>
+            <a href="https://github.com/princekumar9234" target="_blank" class="drawer-link">Developer</a>
+            <a href="/login" class="drawer-link">Account</a>
+            <div class="drawer-divider"></div>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/chat" class="drawer-btn primary">Open Dashboard</a>
+            <% } else { %>
+                <a href="/login" class="drawer-btn outline">Log In</a>
+                <a href="/signup" class="drawer-btn primary">Get Started</a>
+            <% } %>
+        </div>
+    </div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
 
     <!-- Hero Section -->
     <main class="hero">
@@ -506,6 +660,22 @@
                 }
             });
         });
+
+        // Mobile Drawer Logic
+        const drawer = document.getElementById('mobileDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const closeBtn = document.getElementById('closeDrawer');
+
+        function toggleDrawer() {
+            drawer.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = drawer.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        menuBtn.addEventListener('click', toggleDrawer);
+        closeBtn.addEventListener('click', toggleDrawer);
+        overlay.addEventListener('click', toggleDrawer);
 
         // Initial check for scroll position
         if (window.scrollY > 40) {
