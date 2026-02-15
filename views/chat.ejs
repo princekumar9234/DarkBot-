@@ -268,6 +268,222 @@
                 <button class="settings-btn danger" id="confirmAction">Delete</button>
             </div>
         </div>
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal modal-settings">
+            <button class="modal-close" onclick="closeModal('settingsModal')">
+                <i class="fas fa-xmark"></i>
+            </button>
+            
+            <aside class="settings-sidebar">
+                <div class="settings-sidebar-header">
+                    <span style="font-weight: 700; font-size: 16px; color: #fff;">Settings</span>
+                </div>
+                <nav class="settings-nav">
+                    <button class="settings-nav-item active" data-tab="general">
+                        <i class="fas fa-sliders"></i>
+                        <span>General</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="personalization">
+                        <i class="fas fa-user-gear"></i>
+                        <span>Personalization</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="apps">
+                        <i class="fas fa-th-large"></i>
+                        <span>Apps</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="data">
+                        <i class="fas fa-database"></i>
+                        <span>Data controls</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="security">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>Security</span>
+                    </button>
+                    <button class="settings-nav-item" data-tab="account">
+                        <i class="fas fa-user"></i>
+                        <span>Account</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <main class="settings-content">
+                <header class="settings-content-header">
+                    <h2 id="settingsTabTitle">General</h2>
+                </header>
+                
+                <section class="settings-content-body">
+                    <!-- General Tab -->
+                    <div class="settings-section-block active" id="tab-general">
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Appearance</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-select-wrapper">
+                                    <select class="settings-select" onchange="setTheme(this.value)">
+                                        <option value="system" <%= user.preferences.theme === 'system' ? 'selected' : '' %>>System</option>
+                                        <option value="dark" <%= user.preferences.theme === 'dark' ? 'selected' : '' %>>Dark</option>
+                                        <option value="light" <%= user.preferences.theme === 'light' ? 'selected' : '' %>>Light</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Accent color</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-select-wrapper">
+                                    <select class="settings-select" onchange="setAccentColor(this.value)">
+                                        <option value="#8b5cf6" <%= user.preferences.accentColor === '#8b5cf6' ? 'selected' : '' %>>Default</option>
+                                        <option value="#3b82f6" <%= user.preferences.accentColor === '#3b82f6' ? 'selected' : '' %>>Blue</option>
+                                        <option value="#10b981" <%= user.preferences.accentColor === '#10b981' ? 'selected' : '' %>>Green</option>
+                                        <option value="#ef4444" <%= user.preferences.accentColor === '#ef4444' ? 'selected' : '' %>>Red</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row" style="opacity: 0.6;">
+                            <div class="settings-info">
+                                <div class="settings-label">Language</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-select-wrapper">
+                                    <select class="settings-select" disabled>
+                                        <option>Auto-detect</option>
+                                        <option>English</option>
+                                        <option>Hindi</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row" style="opacity: 0.6;">
+                            <div class="settings-info">
+                                <div class="settings-label">Spoken language</div>
+                                <div class="settings-desc">For best results, select the language you mainly speak. If it's not listed, it may still be supported via auto-detection.</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-select-wrapper">
+                                    <select class="settings-select" disabled>
+                                        <option>Auto-detect</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Voice</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-voice-preview">
+                                    <button class="settings-btn-play">
+                                        <i class="fas fa-play"></i>
+                                        <span>Play</span>
+                                    </button>
+                                    <div class="settings-select-wrapper">
+                                        <select class="settings-select">
+                                            <option>Sol</option>
+                                            <option>Luna</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Separate Voice</div>
+                                <div class="settings-desc">Keep ChatGPT Voice in a separate full screen, without real time transcripts and visuals.</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-toggle" id="separateVoiceToggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personalization Tab -->
+                    <div class="settings-section-block" id="tab-personalization">
+                         <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">AI Engine</div>
+                                <div class="settings-desc">Choose your default AI provider</div>
+                            </div>
+                            <div class="settings-control">
+                                <div class="settings-select-wrapper">
+                                    <select class="settings-select" onchange="setAiProvider(this.value)">
+                                        <option value="gemini" <%= user.preferences.aiProvider === 'gemini' ? 'selected' : '' %>>Gemini Flash</option>
+                                        <option value="openai" <%= user.preferences.aiProvider === 'openai' ? 'selected' : '' %>>GPT-4o</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Tab -->
+                    <div class="settings-section-block" id="tab-data">
+                         <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Clear Chat History</div>
+                                <div class="settings-desc">Permanently delete all your conversations</div>
+                            </div>
+                            <div class="settings-control">
+                                <button class="settings-btn-play" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);" onclick="clearAllChats()">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Delete All</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Tab -->
+                    <div class="settings-section-block" id="tab-account">
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Name</div>
+                                <div class="settings-desc"><%= user.name %></div>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Email</div>
+                                <div class="settings-desc"><%= user.email %></div>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <div class="settings-label">Log Out</div>
+                            </div>
+                            <div class="settings-control">
+                                <button class="settings-btn-play" onclick="logout()">
+                                    <i class="fas fa-right-from-bracket"></i>
+                                    <span>Log out</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- placeholders for other tabs -->
+                    <div class="settings-section-block" id="tab-notifications">
+                        <div style="text-align: center; padding: 40px; color: #8e8e8e;">Notification settings coming soon.</div>
+                    </div>
+                    <div class="settings-section-block" id="tab-apps">
+                        <div style="text-align: center; padding: 40px; color: #8e8e8e;">App integrations coming soon.</div>
+                    </div>
+                    <div class="settings-section-block" id="tab-security">
+                        <div style="text-align: center; padding: 40px; color: #8e8e8e;">Security features coming soon.</div>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
 
     <script>
@@ -1024,7 +1240,7 @@
     // Settings Modal Logic
     // ============================================
     function openSettingsModal() {
-        document.getElementById('settingsModal').classList.add('active');
+        openModal('settingsModal');
         if (typeof userDropdown !== 'undefined' && userDropdown) userDropdown.classList.remove('active');
     }
 
@@ -1088,6 +1304,17 @@
         }
     }
 
+    // Modal Utilities
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add('active');
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.remove('active');
+    }
+
     // Close settings on outside click
     const settingsModal = document.getElementById('settingsModal');
     if (settingsModal) {
@@ -1100,222 +1327,5 @@
     loadChatHistory();
     chatInput.focus();
     </script>
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal modal-settings">
-            <button class="modal-close" onclick="closeModal('settingsModal')">
-                <i class="fas fa-xmark"></i>
-            </button>
-            
-            <aside class="settings-sidebar">
-                <div class="settings-sidebar-header">
-                    <span style="font-weight: 700; font-size: 16px; color: #fff;">Settings</span>
-                </div>
-                <nav class="settings-nav">
-                    <button class="settings-nav-item active" data-tab="general">
-                        <i class="fas fa-sliders"></i>
-                        <span>General</span>
-                    </button>
-                    <button class="settings-nav-item" data-tab="notifications">
-                        <i class="fas fa-bell"></i>
-                        <span>Notifications</span>
-                    </button>
-                    <button class="settings-nav-item" data-tab="personalization">
-                        <i class="fas fa-user-gear"></i>
-                        <span>Personalization</span>
-                    </button>
-                    <button class="settings-nav-item" data-tab="apps">
-                        <i class="fas fa-th-large"></i>
-                        <span>Apps</span>
-                    </button>
-                    <button class="settings-nav-item" data-tab="data">
-                        <i class="fas fa-database"></i>
-                        <span>Data controls</span>
-                    </button>
-                    <button class="settings-nav-item" data-tab="security">
-                        <i class="fas fa-shield-halved"></i>
-                        <span>Security</span>
-                    </button>
-                    <button class="settings-nav-item" data-tab="account">
-                        <i class="fas fa-user"></i>
-                        <span>Account</span>
-                    </button>
-                </nav>
-            </aside>
-
-            <main class="settings-content">
-                <header class="settings-content-header">
-                    <h2 id="settingsTabTitle">General</h2>
-                </header>
-                
-                <section class="settings-content-body">
-                    <!-- General Tab -->
-                    <div class="settings-section-block active" id="tab-general">
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Appearance</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-select-wrapper">
-                                    <select class="settings-select" onchange="setTheme(this.value)">
-                                        <option value="system" <%= user.preferences.theme === 'system' ? 'selected' : '' %>>System</option>
-                                        <option value="dark" <%= user.preferences.theme === 'dark' ? 'selected' : '' %>>Dark</option>
-                                        <option value="light" <%= user.preferences.theme === 'light' ? 'selected' : '' %>>Light</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Accent color</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-select-wrapper">
-                                    <select class="settings-select" onchange="setAccentColor(this.value)">
-                                        <option value="#8b5cf6" <%= user.preferences.accentColor === '#8b5cf6' ? 'selected' : '' %>>Default</option>
-                                        <option value="#3b82f6" <%= user.preferences.accentColor === '#3b82f6' ? 'selected' : '' %>>Blue</option>
-                                        <option value="#10b981" <%= user.preferences.accentColor === '#10b981' ? 'selected' : '' %>>Green</option>
-                                        <option value="#ef4444" <%= user.preferences.accentColor === '#ef4444' ? 'selected' : '' %>>Red</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="settings-row" style="opacity: 0.6;">
-                            <div class="settings-info">
-                                <div class="settings-label">Language</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-select-wrapper">
-                                    <select class="settings-select" disabled>
-                                        <option>Auto-detect</option>
-                                        <option>English</option>
-                                        <option>Hindi</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="settings-row" style="opacity: 0.6;">
-                            <div class="settings-info">
-                                <div class="settings-label">Spoken language</div>
-                                <div class="settings-desc">For best results, select the language you mainly speak. If it's not listed, it may still be supported via auto-detection.</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-select-wrapper">
-                                    <select class="settings-select" disabled>
-                                        <option>Auto-detect</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Voice</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-voice-preview">
-                                    <button class="settings-btn-play">
-                                        <i class="fas fa-play"></i>
-                                        <span>Play</span>
-                                    </button>
-                                    <div class="settings-select-wrapper">
-                                        <select class="settings-select">
-                                            <option>Sol</option>
-                                            <option>Luna</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Separate Voice</div>
-                                <div class="settings-desc">Keep ChatGPT Voice in a separate full screen, without real time transcripts and visuals.</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-toggle" id="separateVoiceToggle" onclick="this.classList.toggle('active')"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Personalization Tab -->
-                    <div class="settings-section-block" id="tab-personalization">
-                         <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">AI Engine</div>
-                                <div class="settings-desc">Choose your default AI provider</div>
-                            </div>
-                            <div class="settings-control">
-                                <div class="settings-select-wrapper">
-                                    <select class="settings-select" onchange="setAiProvider(this.value)">
-                                        <option value="gemini" <%= user.preferences.aiProvider === 'gemini' ? 'selected' : '' %>>Gemini Flash</option>
-                                        <option value="openai" <%= user.preferences.aiProvider === 'openai' ? 'selected' : '' %>>GPT-4o</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Data Tab -->
-                    <div class="settings-section-block" id="tab-data">
-                         <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Clear Chat History</div>
-                                <div class="settings-desc">Permanently delete all your conversations</div>
-                            </div>
-                            <div class="settings-control">
-                                <button class="settings-btn-play" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);" onclick="clearAllChats()">
-                                    <i class="fas fa-trash"></i>
-                                    <span>Delete All</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Account Tab -->
-                    <div class="settings-section-block" id="tab-account">
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Name</div>
-                                <div class="settings-desc"><%= user.name %></div>
-                            </div>
-                        </div>
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Email</div>
-                                <div class="settings-desc"><%= user.email %></div>
-                            </div>
-                        </div>
-                        <div class="settings-row">
-                            <div class="settings-info">
-                                <div class="settings-label">Log Out</div>
-                            </div>
-                            <div class="settings-control">
-                                <button class="settings-btn-play" onclick="logout()">
-                                    <i class="fas fa-right-from-bracket"></i>
-                                    <span>Log out</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- placeholders for other tabs -->
-                    <div class="settings-section-block" id="tab-notifications">
-                        <div style="text-align: center; padding: 40px; color: #8e8e8e;">Notification settings coming soon.</div>
-                    </div>
-                    <div class="settings-section-block" id="tab-apps">
-                        <div style="text-align: center; padding: 40px; color: #8e8e8e;">App integrations coming soon.</div>
-                    </div>
-                    <div class="settings-section-block" id="tab-security">
-                        <div style="text-align: center; padding: 40px; color: #8e8e8e;">Security features coming soon.</div>
-                    </div>
-                </section>
-            </main>
-        </div>
-    </div>
 </body>
 </html>
