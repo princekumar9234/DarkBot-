@@ -26,14 +26,17 @@
             padding: 0;
         }
 
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            position: relative;
+        html {
+            scroll-behavior: smooth;
             -webkit-text-size-adjust: 100%;
         }
 
         body {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            height: auto !important;
+            width: 100% !important;
+            position: relative;
             min-height: 100vh;
             font-family: 'Inter', sans-serif;
             background: #080808;
@@ -649,56 +652,60 @@
     </footer>
 
     <script>
-        // Navbar scroll effect
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 40) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
-            }
-        });
-
-        // Smooth scroll implementation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                const target = document.querySelector(targetId);
-                if (target) {
-                    const headerOffset = 100;
-                    const elementPosition = target.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navbar scroll effect
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('navbar');
+                if (window.scrollY > 40) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
                 }
             });
+
+            // Smooth scroll implementation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        const headerOffset = 80;
+                        const elementPosition = target.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + (window.pageYOffset || document.documentElement.scrollTop) - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Mobile Drawer Logic
+            const drawer = document.getElementById('mobileDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const closeBtn = document.getElementById('closeDrawer');
+
+            function toggleDrawer() {
+                if (!drawer || !overlay) return;
+                drawer.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = drawer.classList.contains('active') ? 'hidden' : 'auto';
+            }
+
+            if (menuBtn) menuBtn.addEventListener('click', toggleDrawer);
+            if (closeBtn) closeBtn.addEventListener('click', toggleDrawer);
+            if (overlay) overlay.addEventListener('click', toggleDrawer);
+
+            // Initial check for scroll position
+            if (window.scrollY > 40) {
+                const nav = document.getElementById('navbar');
+                if (nav) nav.classList.add('scrolled');
+            }
         });
-
-        // Mobile Drawer Logic
-        const drawer = document.getElementById('mobileDrawer');
-        const overlay = document.getElementById('drawerOverlay');
-        const menuBtn = document.getElementById('mobileMenuBtn');
-        const closeBtn = document.getElementById('closeDrawer');
-
-        function toggleDrawer() {
-            drawer.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = drawer.classList.contains('active') ? 'hidden' : 'auto';
-        }
-
-        menuBtn.addEventListener('click', toggleDrawer);
-        closeBtn.addEventListener('click', toggleDrawer);
-        overlay.addEventListener('click', toggleDrawer);
-
-        // Initial check for scroll position
-        if (window.scrollY > 40) {
-            document.getElementById('navbar').classList.add('scrolled');
-        }
     </script>
 </body>
 </html>
