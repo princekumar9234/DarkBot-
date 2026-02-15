@@ -2,71 +2,234 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="description" content="Create your DarkBot account and start chatting with AI.">
+    <meta name="theme-color" content="#8b5cf6">
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #080808;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Mesh Background */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(220, 20, 60, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #000 0%, #080808 100%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(18, 18, 18, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 36px;
+            padding: 40px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            animation: cardFadeIn 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .auth-logo img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            box-shadow: 0 0 30px rgba(220, 20, 60, 0.4);
+            transition: transform 0.6s ease;
+        }
+
+        .auth-logo:hover img { transform: rotate(360deg); }
+
+        .auth-logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .form-group { position: relative; }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #aaa;
+            margin-bottom: 6px;
+            margin-left: 4px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            bottom: 12px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 42px 12px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%));
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 16px;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .auth-footer a {
+            color: #8b5cf6;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .auth-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .auth-error.show { display: block; }
+    </style>
 </head>
 <body>
-    <div class="auth-page">
-        <div class="auth-container">
-            <div class="auth-card">
-                <!-- Logo -->
-                <div class="auth-logo">
-                    <div class="auth-logo-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h1>DarkBot</h1>
+    <div class="mesh-bg"></div>
+
+    <div class="auth-card">
+        <a href="/" class="auth-logo">
+            <img src="/img/sharingan-logo.svg" alt="DarkBot">
+            <h1>DarkBot</h1>
+        </a>
+
+        <p class="auth-subtitle">Join the evolution of intelligent conversations.</p>
+
+        <div class="auth-error" id="authError"></div>
+
+        <form id="signupForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name">
                 </div>
 
-                <p class="auth-subtitle">Create your account and start exploring the power of AI conversations.</p>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+                </div>
 
-                <!-- Error Message -->
-                <div class="auth-error" id="authError"></div>
-
-                <!-- Signup Form -->
-                <form class="auth-form" id="signupForm">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
+                    <div class="toggle-password" onclick="togglePassword('password')">
+                        <i class="fas fa-eye" id="passwordIcon"></i>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required autocomplete="new-password">
+                    <div class="toggle-password" onclick="togglePassword('confirmPassword')">
+                        <i class="fas fa-eye" id="confirmPasswordIcon"></i>
                     </div>
-
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
-                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                            <i class="fas fa-eye" id="passwordIcon"></i>
-                        </button>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required autocomplete="new-password">
-                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
-                            <i class="fas fa-eye" id="confirmPasswordIcon"></i>
-                        </button>
-                    </div>
-
-                    <button type="submit" class="auth-btn" id="signupBtn">
-                        <span id="signupBtnText">Create Account</span>
-                    </button>
-                </form>
-
-                <div class="auth-footer">
-                    Already have an account? <a href="/login">Log in</a>
                 </div>
             </div>
+
+            <button type="submit" class="auth-btn" id="signupBtn">
+                <span id="signupBtnText">Create Account</span>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already a member? <a href="/login">Log in</a>
         </div>
     </div>
 
     <script>
-        // Toggle password visibility
         function togglePassword(fieldId) {
             const input = document.getElementById(fieldId);
             const icon = document.getElementById(fieldId + 'Icon');
@@ -81,16 +244,11 @@
             }
         }
 
-        // Handle signup
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const errorEl = document.getElementById('authError');
             const btn = document.getElementById('signupBtn');
             const btnText = document.getElementById('signupBtnText');
-
-            errorEl.classList.remove('show');
-            btn.disabled = true;
-            btnText.textContent = 'Creating account...';
 
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -98,10 +256,12 @@
             if (password !== confirmPassword) {
                 errorEl.textContent = 'Passwords do not match.';
                 errorEl.classList.add('show');
-                btn.disabled = false;
-                btnText.textContent = 'Create Account';
                 return;
             }
+
+            errorEl.classList.remove('show');
+            btn.disabled = true;
+            btnText.textContent = 'Creating account...';
 
             try {
                 const res = await fetch('/auth/signup', {
@@ -124,7 +284,7 @@
                     errorEl.classList.add('show');
                 }
             } catch (err) {
-                errorEl.textContent = 'Something went wrong. Please try again.';
+                errorEl.textContent = 'Connection error. Please try again.';
                 errorEl.classList.add('show');
             } finally {
                 btn.disabled = false;

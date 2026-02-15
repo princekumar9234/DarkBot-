@@ -8,10 +8,51 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: <%= user.preferences.accentColor || '#8b5cf6' %>; }
+        :root { 
+            --accent: <%= user.preferences.accentColor || '#8b5cf6' %>; 
+            --font-outfit: 'Outfit', sans-serif;
+        }
         :root { --accent-hover: color-mix(in srgb, var(--accent) 85%, black); }
         :root { --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent); }
+        
+        .welcome-title-main {
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-size: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .welcome-logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(220, 20, 60, 0.3);
+            margin-bottom: 24px;
+            transition: transform 0.5s ease;
+        }
+        
+        .welcome-logo:hover img {
+            transform: scale(1.1);
+        }
+        
+        .suggestion-btn {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+            padding: 16px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .suggestion-btn:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: var(--accent) !important;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -88,7 +129,7 @@
                 </div>
                 <div class="topbar-center">
                     <div class="topbar-title-pill">
-                        <img src="/img/logo.png" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-right: 4px;" onerror="this.style.display='none'">
+                        <img src="/img/sharingan-logo.svg" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-right: 4px;" onerror="this.style.display='none'">
                         <span>DarkBot</span>
                         <i class="fas fa-chevron-down" style="font-size: 10px; opacity: 0.5; margin-left: 4px;"></i>
                     </div>
@@ -109,7 +150,7 @@
                     <!-- Welcome Screen - ChatGPT Style -->
                     <div class="welcome-screen" id="welcomeScreen">
                         <div class="welcome-logo">
-                            <img src="/img/logo.png" alt="DarkBot Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3504/3504780.png'">
+                            <img src="/img/sharingan-logo.svg" alt="DarkBot Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3504/3504780.png'">
                         </div>
                         <h1 class="welcome-title-main">What can I help with?</h1>
                         <div class="welcome-suggestions">
@@ -595,7 +636,7 @@
             `;
         } else {
             // Assistant Message
-            const avatar = '<img src="/img/logo.png" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/3504/3504780.png\'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'; 
+            const avatar = '<img src="/img/sharingan-logo.svg" onerror="this.src=\'https://cdn-icons-png.flaticon.com/512/3504/3504780.png\'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'; 
             messageEl.innerHTML = `
                 <div class="message-row">
                     <div class="message-avatar">${avatar}</div>

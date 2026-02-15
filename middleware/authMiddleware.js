@@ -97,4 +97,22 @@ const redirectIfAuth = async (req, res, next) => {
     }
 };
 
-module.exports = { authMiddleware, authViewMiddleware, redirectIfAuth };
+/**
+ * Middleware: just load user if exists (no redirect)
+ */
+const loadUser = async (req, res, next) => {
+    try {
+        if (req.cookies && req.cookies.token) {
+            const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+            const user = await User.findById(decoded.id).select('-password');
+            if (user) {
+                req.user = user;
+            }
+        }
+        next();
+    } catch (error) {
+        next();
+    }
+};
+
+module.exports = { authMiddleware, authViewMiddleware, redirectIfAuth, loadUser };

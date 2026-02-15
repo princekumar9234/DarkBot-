@@ -4,11 +4,14 @@
 
 const express = require('express');
 const router = express.Router();
-const { authViewMiddleware, redirectIfAuth } = require('../middleware/authMiddleware');
-
-// Landing / Login page
-router.get('/', redirectIfAuth, (req, res) => {
-    res.render('login', { title: 'Login - DarkBot' });
+const { authViewMiddleware, redirectIfAuth, loadUser } = require('../middleware/authMiddleware');
+ 
+// Home / Landing page
+router.get('/', loadUser, (req, res) => {
+    res.render('home', { 
+        title: 'DarkBot - Premium AI Assistant',
+        user: req.user
+    });
 });
 
 router.get('/login', redirectIfAuth, (req, res) => {

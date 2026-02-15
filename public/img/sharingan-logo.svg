@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#DC143C" stroke="#000" stroke-width="3"/>
+  
+  <!-- Inner black circle -->
+  <circle cx="100" cy="100" r="25" fill="#000"/>
+  
+  <!-- Tomoe 1 (top) -->
+  <g transform="rotate(0 100 100)">
+    <ellipse cx="100" cy="50" rx="15" ry="25" fill="#000"/>
+    <circle cx="100" cy="50" r="8" fill="#DC143C"/>
+  </g>
+  
+  <!-- Tomoe 2 (bottom-left) -->
+  <g transform="rotate(120 100 100)">
+    <ellipse cx="100" cy="50" rx="15" ry="25" fill="#000"/>
+    <circle cx="100" cy="50" r="8" fill="#DC143C"/>
+  </g>
+  
+  <!-- Tomoe 3 (bottom-right) -->
+  <g transform="rotate(240 100 100)">
+    <ellipse cx="100" cy="50" rx="15" ry="25" fill="#000"/>
+    <circle cx="100" cy="50" r="8" fill="#DC143C"/>
+  </g>
+</svg>

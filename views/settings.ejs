@@ -2,16 +2,103 @@
 <html lang="en" data-theme="<%= user.preferences.theme === 'system' ? 'dark' : user.preferences.theme %>">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="description" content="DarkBot Settings - Customize your experience.">
+    <meta name="theme-color" content="#8b5cf6">
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: <%= user.preferences.accentColor || '#8b5cf6' %>; }
+        :root { 
+            --accent: <%= user.preferences.accentColor || '#8b5cf6' %>; 
+            --font-outfit: 'Outfit', sans-serif;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+        }
+
+        .settings-header h1 {
+            font-family: var(--font-outfit);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .settings-section-title {
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+        }
+
+        .back-chat-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .back-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal {
+            background: #111;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .form-group input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #fff;
+            width: 100%;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            cursor: pointer;
+            color: #666;
+            z-index: 5;
+        }
+
+        .toggle-password:hover { color: #fff; }
     </style>
 </head>
 <body>
+    <div class="mesh-bg" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.05) 0%, transparent 50%), #0d0d0d;"></div>
+    
     <div class="app-layout">
         <!-- Mobile Sidebar Backdrop -->
         <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -19,7 +106,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <button class="new-chat-btn" onclick="window.location.href='/chat'">
+                <button class="back-chat-btn" onclick="window.location.href='/chat'">
                     <i class="fas fa-arrow-left"></i>
                     <span>Back to Chat</span>
                 </button>
@@ -42,10 +129,13 @@
             <!-- Top Bar -->
             <div class="topbar">
                 <div class="topbar-left">
-                    <button class="sidebar-toggle" id="sidebarToggle">
+                    <button class="topbar-btn" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div class="topbar-title">Settings</div>
+                    <div class="topbar-title-pill" style="background: transparent; border: none;">
+                        <img src="/img/sharingan-logo.svg" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
+                        <span style="font-family: 'Outfit'; font-weight: 700;">Settings</span>
+                    </div>
                 </div>
                 <div class="topbar-right">
                     <button class="topbar-btn" onclick="window.location.href='/chat'" title="Back to chat">
@@ -62,12 +152,10 @@
                         <p>Manage your account and customize DarkBot</p>
                     </div>
 
-                    <!-- ======================== -->
                     <!-- Profile Section -->
-                    <!-- ======================== -->
                     <div class="settings-section">
                         <div class="settings-section-title">
-                            <i class="fas fa-user" style="margin-right: 8px;"></i> Profile
+                            <i class="fas fa-user"></i> Profile
                         </div>
 
                         <div class="settings-item">
@@ -77,7 +165,7 @@
                             </div>
                             <div class="settings-item-action">
                                 <button class="settings-btn outline" onclick="editProfile('name')">
-                                    <i class="fas fa-pencil"></i> Edit
+                                    <i class="fas fa-pencil"></i>
                                 </button>
                             </div>
                         </div>
@@ -89,43 +177,27 @@
                             </div>
                             <div class="settings-item-action">
                                 <button class="settings-btn outline" onclick="editProfile('email')">
-                                    <i class="fas fa-pencil"></i> Edit
+                                    <i class="fas fa-pencil"></i>
                                 </button>
-                            </div>
-                        </div>
-
-                        <div class="settings-item">
-                            <div class="settings-item-info">
-                                <div class="settings-item-label">Member Since</div>
-                                <div class="settings-item-desc"><%= new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ======================== -->
                     <!-- Appearance Section -->
-                    <!-- ======================== -->
                     <div class="settings-section">
                         <div class="settings-section-title">
-                            <i class="fas fa-palette" style="margin-right: 8px;"></i> Appearance
+                            <i class="fas fa-palette"></i> Appearance
                         </div>
 
                         <div class="settings-item">
                             <div class="settings-item-info">
                                 <div class="settings-item-label">Theme</div>
-                                <div class="settings-item-desc">Choose your preferred theme</div>
                             </div>
                             <div class="settings-item-action">
                                 <div class="theme-selector">
-                                    <button class="theme-option <%= user.preferences.theme === 'light' ? 'active' : '' %>" data-theme="light" onclick="setTheme('light')">
-                                        <i class="fas fa-sun"></i> Light
-                                    </button>
-                                    <button class="theme-option <%= user.preferences.theme === 'dark' ? 'active' : '' %>" data-theme="dark" onclick="setTheme('dark')">
-                                        <i class="fas fa-moon"></i> Dark
-                                    </button>
-                                    <button class="theme-option <%= user.preferences.theme === 'system' ? 'active' : '' %>" data-theme="system" onclick="setTheme('system')">
-                                        <i class="fas fa-laptop"></i> System
-                                    </button>
+                                    <button class="theme-option <%= user.preferences.theme === 'light' ? 'active' : '' %>" data-theme="light" onclick="setTheme('light')">Light</button>
+                                    <button class="theme-option <%= user.preferences.theme === 'dark' ? 'active' : '' %>" data-theme="dark" onclick="setTheme('dark')">Dark</button>
+                                    <button class="theme-option <%= user.preferences.theme === 'system' ? 'active' : '' %>" data-theme="system" onclick="setTheme('system')">Auto</button>
                                 </div>
                             </div>
                         </div>
@@ -133,7 +205,6 @@
                         <div class="settings-item">
                             <div class="settings-item-info">
                                 <div class="settings-item-label">Accent Color</div>
-                                <div class="settings-item-desc">Pick your favorite accent color</div>
                             </div>
                             <div class="settings-item-action">
                                 <div class="accent-colors">
@@ -142,101 +213,63 @@
                                     <button class="accent-color-option" style="background: #10b981;" data-color="#10b981" onclick="setAccentColor('#10b981')"></button>
                                     <button class="accent-color-option" style="background: #f59e0b;" data-color="#f59e0b" onclick="setAccentColor('#f59e0b')"></button>
                                     <button class="accent-color-option" style="background: #ef4444;" data-color="#ef4444" onclick="setAccentColor('#ef4444')"></button>
-                                    <button class="accent-color-option" style="background: #ec4899;" data-color="#ec4899" onclick="setAccentColor('#ec4899')"></button>
-                                    <button class="accent-color-option" style="background: #06b6d4;" data-color="#06b6d4" onclick="setAccentColor('#06b6d4')"></button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ======================== -->
-                    <!-- AI Provider Section -->
-                    <!-- ======================== -->
+                    <!-- AI Provider -->
                     <div class="settings-section">
                         <div class="settings-section-title">
-                            <i class="fas fa-brain" style="margin-right: 8px;"></i> AI Provider
+                            <i class="fas fa-brain"></i> AI Engine
                         </div>
-
                         <div class="settings-item">
                             <div class="settings-item-info">
-                                <div class="settings-item-label">Default AI Model</div>
-                                <div class="settings-item-desc">Select which AI powers your chats</div>
+                                <div class="settings-item-label">Default Provider</div>
                             </div>
                             <div class="settings-item-action">
                                 <div class="provider-selector">
-                                    <button class="provider-option <%= user.preferences.aiProvider === 'gemini' ? 'active' : '' %>" onclick="setAiProvider('gemini')">
-                                        ✨ Gemini
-                                    </button>
-                                    <button class="provider-option <%= user.preferences.aiProvider === 'openai' ? 'active' : '' %>" onclick="setAiProvider('openai')">
-                                        🤖 ChatGPT
-                                    </button>
+                                    <button class="provider-option <%= user.preferences.aiProvider === 'gemini' ? 'active' : '' %>" onclick="setAiProvider('gemini')">Gemini</button>
+                                    <button class="provider-option <%= user.preferences.aiProvider === 'openai' ? 'active' : '' %>" onclick="setAiProvider('openai')">GPT-4o</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ======================== -->
-                    <!-- Security Section -->
-                    <!-- ======================== -->
+                    <!-- Security -->
                     <div class="settings-section">
                         <div class="settings-section-title">
-                            <i class="fas fa-shield-halved" style="margin-right: 8px;"></i> Security
+                            <i class="fas fa-shield-halved"></i> Privacy & Security
                         </div>
-
                         <div class="settings-item">
                             <div class="settings-item-info">
-                                <div class="settings-item-label">Change Password</div>
-                                <div class="settings-item-desc">Update your account password</div>
+                                <div class="settings-item-label">Password</div>
                             </div>
                             <div class="settings-item-action">
-                                <button class="settings-btn outline" onclick="showPasswordModal()">
-                                    <i class="fas fa-key"></i> Change
-                                </button>
+                                <button class="settings-btn outline" onclick="showPasswordModal()">Change</button>
                             </div>
                         </div>
-
                         <div class="settings-item">
                             <div class="settings-item-info">
                                 <div class="settings-item-label">Log Out</div>
-                                <div class="settings-item-desc">Sign out of your account</div>
                             </div>
                             <div class="settings-item-action">
-                                <button class="settings-btn outline" onclick="logout()">
-                                    <i class="fas fa-right-from-bracket"></i> Log Out
-                                </button>
+                                <button class="settings-btn outline" onclick="logout()">Log Out</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ======================== -->
-                    <!-- Data Controls Section -->
-                    <!-- ======================== -->
+                    <!-- Data -->
                     <div class="settings-section">
-                        <div class="settings-section-title">
-                            <i class="fas fa-database" style="margin-right: 8px;"></i> Data Controls
+                        <div class="settings-section-title" style="color: var(--error);">
+                            <i class="fas fa-triangle-exclamation"></i> Danger Zone
                         </div>
-
                         <div class="settings-item">
                             <div class="settings-item-info">
-                                <div class="settings-item-label">Clear All Chats</div>
-                                <div class="settings-item-desc">Permanently delete all your chat history</div>
+                                <div class="settings-item-label">Clear Chats</div>
                             </div>
                             <div class="settings-item-action">
-                                <button class="settings-btn danger" onclick="clearAllChats()">
-                                    <i class="fas fa-trash-alt"></i> Clear
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="settings-item">
-                            <div class="settings-item-info">
-                                <div class="settings-item-label">Delete Account</div>
-                                <div class="settings-item-desc">Permanently delete your account and all data</div>
-                            </div>
-                            <div class="settings-item-action">
-                                <button class="settings-btn danger" onclick="deleteAccount()">
-                                    <i class="fas fa-user-xmark"></i> Delete
-                                </button>
+                                <button class="settings-btn danger" onclick="clearAllChats()">Delete All</button>
                             </div>
                         </div>
                     </div>
@@ -245,21 +278,43 @@
         </main>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <button class="modal-close" onclick="closeModal('passwordModal')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-error" id="passwordError"></div>
+                <div class="form-group" style="position: relative; margin-bottom: 20px;">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" placeholder="••••••••">
+                    <div class="toggle-password" onclick="togglePassword('currentPassword')"><i class="fas fa-eye" id="currentPasswordIcon"></i></div>
+                </div>
+                <div class="form-group" style="position: relative; margin-bottom: 20px;">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" placeholder="••••••••">
+                    <div class="toggle-password" onclick="togglePassword('newPassword')"><i class="fas fa-eye" id="newPasswordIcon"></i></div>
+                </div>
+                <div class="form-group" style="position: relative;">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" placeholder="••••••••">
+                    <div class="toggle-password" onclick="togglePassword('confirmNewPassword')"><i class="fas fa-eye" id="confirmNewPasswordIcon"></i></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="settings-btn outline" onclick="closeModal('passwordModal')">Cancel</button>
+                <button class="settings-btn primary" onclick="changePassword()" id="changePasswordBtn">Update Password</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Confirm Modal -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal">
-            <div class="modal-header">
-                <h3 id="confirmTitle">Confirm</h3>
-                <button class="modal-close" onclick="closeModal('confirmModal')">
-                    <i class="fas fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p id="confirmMessage">Are you sure?</p>
-            </div>
+            <div class="modal-header"><h3 id="confirmTitle">Confirm</h3></div>
+            <div class="modal-body"><p id="confirmMessage"></p></div>
             <div class="modal-footer">
                 <button class="settings-btn outline" onclick="closeModal('confirmModal')">Cancel</button>
                 <button class="settings-btn danger" id="confirmAction">Confirm</button>
@@ -270,16 +325,11 @@
     <!-- Edit Profile Modal -->
     <div class="modal-overlay" id="editProfileModal">
         <div class="modal">
-            <div class="modal-header">
-                <h3 id="editProfileTitle">Edit Profile</h3>
-                <button class="modal-close" onclick="closeModal('editProfileModal')">
-                    <i class="fas fa-xmark"></i>
-                </button>
-            </div>
+            <div class="modal-header"><h3 id="editProfileTitle">Edit</h3></div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="editProfileInput" id="editProfileLabel">Name</label>
-                    <input type="text" id="editProfileInput" placeholder="Enter value">
+                    <label id="editProfileLabel">Label</label>
+                    <input type="text" id="editProfileInput">
                 </div>
             </div>
             <div class="modal-footer">
@@ -289,234 +339,89 @@
         </div>
     </div>
 
-    <!-- Change Password Modal -->
-    <div class="modal-overlay" id="passwordModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Change Password</h3>
-                <button class="modal-close" onclick="closeModal('passwordModal')">
-                    <i class="fas fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="auth-error" id="passwordError" style="margin-bottom: 16px;"></div>
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label for="currentPassword">Current Password</label>
-                    <input type="password" id="currentPassword" placeholder="Enter current password">
-                </div>
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label for="newPassword">New Password</label>
-                    <input type="password" id="newPassword" placeholder="Min. 6 characters">
-                </div>
-                <div class="form-group">
-                    <label for="confirmNewPassword">Confirm New Password</label>
-                    <input type="password" id="confirmNewPassword" placeholder="Confirm new password">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="settings-btn outline" onclick="closeModal('passwordModal')">Cancel</button>
-                <button class="settings-btn primary" id="changePasswordBtn" onclick="changePassword()">Change Password</button>
-            </div>
-        </div>
-    </div>
+    <div class="toast-container" id="toastContainer"></div>
 
     <script>
-    // ============================================
-    // Settings Page - Client-Side Logic
-    // ============================================
-
     const currentUser = <%- JSON.stringify(user) %>;
 
-    // ============================================
-    // Sidebar Toggle
-    // ============================================
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        const icon = document.getElementById(id + 'Icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-
     document.getElementById('sidebarToggle').addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
         sidebarBackdrop.classList.toggle('active');
     });
 
-    sidebarBackdrop.addEventListener('click', () => {
-        sidebar.classList.add('collapsed');
-        sidebarBackdrop.classList.remove('active');
-    });
-
-    if (window.innerWidth <= 768) {
-        sidebar.classList.add('collapsed');
-    }
-
-    // ============================================
-    // Theme
-    // ============================================
     function setTheme(theme) {
-        // Update UI immediately
-        if (theme === 'system') {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-        } else {
-            document.documentElement.setAttribute('data-theme', theme);
-        }
-
-        // Update active state
-        document.querySelectorAll('.theme-option').forEach(opt => {
-            opt.classList.toggle('active', opt.dataset.theme === theme);
-        });
-
-        // Save to backend
+        document.documentElement.setAttribute('data-theme', theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme);
+        document.querySelectorAll('.theme-option').forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
         updatePreferences({ theme });
     }
 
-    // Active accent color highlight
-    function highlightActiveAccent() {
-        const currentColor = currentUser.preferences?.accentColor || '#8b5cf6';
-        document.querySelectorAll('.accent-color-option').forEach(opt => {
-            opt.classList.toggle('active', opt.dataset.color === currentColor);
-        });
-    }
-    highlightActiveAccent();
-
-    // ============================================
-    // Accent Color
-    // ============================================
     function setAccentColor(color) {
         document.documentElement.style.setProperty('--accent', color);
-        currentUser.preferences.accentColor = color;
-
-        document.querySelectorAll('.accent-color-option').forEach(opt => {
-            opt.classList.toggle('active', opt.dataset.color === color);
-        });
-
         updatePreferences({ accentColor: color });
     }
 
-    // ============================================
-    // AI Provider
-    // ============================================
     function setAiProvider(provider) {
-        document.querySelectorAll('.provider-option').forEach(opt => {
-            opt.classList.remove('active');
-        });
-        event.target.classList.add('active');
-
         updatePreferences({ aiProvider: provider });
+        setTimeout(() => location.reload(), 500);
     }
 
-    // ============================================
-    // Update Preferences API
-    // ============================================
     async function updatePreferences(data) {
         try {
-            const res = await fetch('/user/preferences', {
+            await fetch('/user/preferences', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            const result = await res.json();
-            if (result.success) {
-                showToast('Preferences saved', 'success');
-            } else {
-                showToast(result.message || 'Failed to save', 'error');
-            }
-        } catch (err) {
-            showToast('Network error', 'error');
-        }
+            showToast('Settings saved', 'success');
+        } catch (err) { showToast('Error saving settings', 'error'); }
     }
 
-    // ============================================
-    // Edit Profile
-    // ============================================
-    let editField = '';
-
     function editProfile(field) {
-        editField = field;
         const modal = document.getElementById('editProfileModal');
         const input = document.getElementById('editProfileInput');
-        const label = document.getElementById('editProfileLabel');
-        const title = document.getElementById('editProfileTitle');
-
-        if (field === 'name') {
-            title.textContent = 'Edit Name';
-            label.textContent = 'Name';
-            input.type = 'text';
-            input.value = currentUser.name;
-            input.placeholder = 'Enter your name';
-        } else {
-            title.textContent = 'Edit Email';
-            label.textContent = 'Email';
-            input.type = 'email';
-            input.value = currentUser.email;
-            input.placeholder = 'Enter your email';
-        }
-
+        document.getElementById('editProfileLabel').textContent = field.charAt(0).toUpperCase() + field.slice(1);
+        input.value = currentUser[field];
         modal.classList.add('active');
-        input.focus();
-
-        // Save handler
         document.getElementById('saveProfileBtn').onclick = async () => {
-            const value = input.value.trim();
-            if (!value) return;
-
             try {
                 const res = await fetch('/user/profile', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ [field]: value })
+                    body: JSON.stringify({ [field]: input.value })
                 });
                 const data = await res.json();
-
                 if (data.success) {
-                    if (field === 'name') {
-                        document.getElementById('profileName').textContent = value;
-                        currentUser.name = value;
-                    } else {
-                        document.getElementById('profileEmail').textContent = value;
-                        currentUser.email = value;
-                    }
-                    showToast('Profile updated', 'success');
-                    closeModal('editProfileModal');
-                } else {
-                    showToast(data.message || 'Failed to update', 'error');
-                }
-            } catch (err) {
-                showToast('Network error', 'error');
-            }
+                    location.reload();
+                } else { showToast(data.message, 'error'); }
+            } catch (err) { showToast('Error', 'error'); }
         };
     }
 
-    // ============================================
-    // Change Password
-    // ============================================
-    function showPasswordModal() {
-        document.getElementById('passwordModal').classList.add('active');
-        document.getElementById('currentPassword').value = '';
-        document.getElementById('newPassword').value = '';
-        document.getElementById('confirmNewPassword').value = '';
-        document.getElementById('passwordError').classList.remove('show');
-    }
-
+    function showPasswordModal() { document.getElementById('passwordModal').classList.add('active'); }
     async function changePassword() {
-        const errorEl = document.getElementById('passwordError');
+        // Implementation similar to login/signup
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmNewPassword').value;
-
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            errorEl.textContent = 'Please fill in all fields.';
-            errorEl.classList.add('show');
-            return;
-        }
-
-        if (newPassword.length < 6) {
-            errorEl.textContent = 'New password must be at least 6 characters.';
-            errorEl.classList.add('show');
-            return;
-        }
-
+        const err = document.getElementById('passwordError');
+        
         if (newPassword !== confirmPassword) {
-            errorEl.textContent = 'New passwords do not match.';
-            errorEl.classList.add('show');
+            err.textContent = "Passwords don't match";
+            err.classList.add('show');
             return;
         }
 
@@ -527,110 +432,39 @@
                 body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
             });
             const data = await res.json();
-
             if (data.success) {
-                showToast('Password changed successfully', 'success');
+                showToast('Password updated', 'success');
                 closeModal('passwordModal');
             } else {
-                errorEl.textContent = data.message;
-                errorEl.classList.add('show');
+                err.textContent = data.message;
+                err.classList.add('show');
             }
-        } catch (err) {
-            errorEl.textContent = 'Network error. Please try again.';
-            errorEl.classList.add('show');
-        }
+        } catch (err) { showToast('Error', 'error'); }
     }
 
-    // ============================================
-    // Logout
-    // ============================================
-    async function logout() {
-        try {
-            await fetch('/auth/logout', { method: 'POST' });
-            window.location.href = '/login';
-        } catch (err) {
-            window.location.href = '/login';
-        }
-    }
+    async function logout() { await fetch('/auth/logout', { method: 'POST' }); location.href = '/'; }
 
-    // ============================================
-    // Clear All Chats
-    // ============================================
     function clearAllChats() {
-        showConfirm('Clear All Chats', 'This will permanently delete ALL your chat history. This cannot be undone.', async () => {
-            try {
-                const res = await fetch('/chat/clear/all', { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) {
-                    showToast('All chats cleared', 'success');
-                }
-            } catch (err) {
-                showToast('Failed to clear chats', 'error');
-            }
+        showConfirm('Clear History', 'Delete all chats?', async () => {
+            await fetch('/chat/clear/all', { method: 'DELETE' });
+            showToast('History cleared', 'success');
         });
     }
 
-    // ============================================
-    // Delete Account
-    // ============================================
-    function deleteAccount() {
-        showConfirm('Delete Account', 'This will permanently delete your account and ALL data. This cannot be undone.', async () => {
-            try {
-                const res = await fetch('/user/account', { method: 'DELETE' });
-                const data = await res.json();
-                if (data.success) {
-                    window.location.href = '/login';
-                }
-            } catch (err) {
-                showToast('Failed to delete account', 'error');
-            }
-        });
-    }
-
-    // ============================================
-    // Confirm Modal
-    // ============================================
-    function showConfirm(title, message, onConfirm) {
+    function showConfirm(title, msg, onConfirm) {
         document.getElementById('confirmTitle').textContent = title;
-        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmMessage').textContent = msg;
         document.getElementById('confirmModal').classList.add('active');
-
-        const actionBtn = document.getElementById('confirmAction');
-        const newBtn = actionBtn.cloneNode(true);
-        actionBtn.parentNode.replaceChild(newBtn, actionBtn);
-        newBtn.id = 'confirmAction';
-        newBtn.addEventListener('click', () => {
-            closeModal('confirmModal');
-            onConfirm();
-        });
+        document.getElementById('confirmAction').onclick = () => { closeModal('confirmModal'); onConfirm(); };
     }
 
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('active');
-    }
-
-    // Close modals on overlay click
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) closeModal(overlay.id);
-        });
-    });
-
-    // ============================================
-    // Toast
-    // ============================================
-    function showToast(message, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-
-        const icon = type === 'success' ? 'fa-check-circle'
-            : type === 'error' ? 'fa-exclamation-circle'
-            : 'fa-info-circle';
-
-        toast.innerHTML = `<i class="fas ${icon}"></i>${message}`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 4000);
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function showToast(msg, type) {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => t.remove(), 3000);
     }
     </script>
 </body>
