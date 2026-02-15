@@ -20,9 +20,20 @@
             --glass-border: rgba(255, 255, 255, 0.08);
         }
 
-        body {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
             overflow-x: hidden;
-            overflow-y: auto;
+            width: 100%;
+            position: relative;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
             min-height: 100vh;
             font-family: 'Inter', sans-serif;
             background: #080808;
