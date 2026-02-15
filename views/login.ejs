@@ -207,7 +207,7 @@
                 <div class="password-wrapper" style="position: relative;">
                     <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" style="padding-right: 48px;">
                     <button type="button" class="toggle-password" onclick="togglePassword('password')" aria-label="Toggle password visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #666; cursor: pointer; padding: 8px; z-index: 20; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-eye" id="passwordIcon" style="font-size: 16px; pointer-events: none;"></i>
+                        <i class="fa-solid fa-eye" id="passwordIcon" style="font-size: 16px; pointer-events: none;"></i>
                     </button>
                 </div>
             </div>
@@ -224,8 +224,12 @@
 
     <script>
         function togglePassword(fieldId) {
+            console.log('Login: Toggling password for', fieldId);
             const input = document.getElementById(fieldId);
             const icon = document.getElementById(fieldId + 'Icon');
+            
+            if (!input || !icon) return;
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -236,6 +240,16 @@
                 icon.classList.add('fa-eye');
             }
         }
+
+        // Add event listener to handle potential issues with inline onclick
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggles = document.querySelectorAll('.toggle-password');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    console.log('Toggle clicked at DOM level');
+                });
+            });
+        });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
