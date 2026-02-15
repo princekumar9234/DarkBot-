@@ -85,7 +85,7 @@
                     <i class="fas fa-plus"></i>
                     <span>New chat</span>
                 </button>
-                <button class="sidebar-nav-item" onclick="openSettingsModal()">
+                <button class="sidebar-nav-item" id="sidebarSettingsBtn">
                     <i class="fas fa-gear"></i>
                     <span>Settings</span>
                 </button>
@@ -110,7 +110,7 @@
                 
                 <!-- User Profile Dropdown -->
                 <div class="user-dropdown" id="userDropdown">
-                    <button class="user-dropdown-item" onclick="openSettingsModal()">
+                    <button class="user-dropdown-item" id="dropdownSettingsBtn">
                         <i class="fas fa-gear"></i>
                         <span>Settings</span>
                     </button>
@@ -268,6 +268,8 @@
                 <button class="settings-btn danger" id="confirmAction">Delete</button>
             </div>
         </div>
+    </div>
+
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal modal-settings">
@@ -1209,9 +1211,7 @@
         });
     }
 
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('active');
-    }
+
 
     // Close modal on overlay click
     document.getElementById('confirmModal').addEventListener('click', (e) => {
@@ -1240,27 +1240,12 @@
     // Settings Modal Logic
     // ============================================
     function openSettingsModal() {
+        console.log('Opening settings modal...');
         openModal('settingsModal');
         if (typeof userDropdown !== 'undefined' && userDropdown) userDropdown.classList.remove('active');
     }
 
-    // Tab Switching
-    document.querySelectorAll('.settings-nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const tabId = item.getAttribute('data-tab');
-            
-            // Update nav active state
-            document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            
-            // Update content visibility
-            document.querySelectorAll('.settings-section-block').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            
-            // Update title
-            document.getElementById('settingsTabTitle').textContent = item.querySelector('span').textContent;
-        });
-    });
+
 
     async function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme);
@@ -1305,14 +1290,14 @@
     }
 
     // Modal Utilities
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.classList.add('active');
+    function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.add('active');
     }
 
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.classList.remove('active');
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.classList.remove('active');
     }
 
     // Close settings on outside click
@@ -1323,9 +1308,41 @@
         });
     }
 
-    // ============================================
-    loadChatHistory();
-    chatInput.focus();
+    // Final Initialization & Event Binding
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebarSetBtn = document.getElementById('sidebarSettingsBtn');
+        const dropdownSetBtn = document.getElementById('dropdownSettingsBtn');
+
+        if (sidebarSetBtn) {
+            sidebarSetBtn.addEventListener('click', (e) => {
+                console.log('Sidebar settings clicked');
+                openSettingsModal();
+            });
+        }
+        if (dropdownSetBtn) {
+            dropdownSetBtn.addEventListener('click', (e) => {
+                console.log('Dropdown settings clicked');
+                openSettingsModal();
+            });
+        }
+
+        // Tab Switching
+        document.querySelectorAll('.settings-nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tabId = item.getAttribute('data-tab');
+                document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.settings-section-block').forEach(b => b.classList.remove('active'));
+                const targetTab = document.getElementById(`tab-${tabId}`);
+                if (targetTab) targetTab.classList.add('active');
+                const titleSpan = item.querySelector('span');
+                if (titleSpan) document.getElementById('settingsTabTitle').textContent = titleSpan.textContent;
+            });
+        });
+
+        loadChatHistory();
+        chatInput.focus();
+    });
     </script>
 </body>
 </html>
